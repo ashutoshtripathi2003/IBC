@@ -1,0 +1,1030 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IBC Platform API",
+    "version": "1.1.0",
+    "description": "IBC — Indian Business Circle platform API. JSON only; every response carries `x-request-id`; errors are RFC 9457 problem documents. `/v1` changes are additive only."
+  },
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "liveness",
+        "summary": "Liveness probe",
+        "description": "The process is running. Does not check dependencies.",
+        "tags": [
+          "Health"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Alive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "ok"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "readiness",
+        "summary": "Readiness probe",
+        "description": "Ready to serve traffic: database reachable and not draining.",
+        "tags": [
+          "Health"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Ready.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "ready"
+                    },
+                    "service": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
+                    "region": {
+                      "type": "string"
+                    },
+                    "checks": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "string",
+                        "enum": [
+                          "ok",
+                          "fail"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "service",
+                    "version",
+                    "region",
+                    "checks"
+                  ]
+                }
+              }
+            }
+          },
+          "503": {
+            "$ref": "#/components/responses/Problem503"
+          }
+        }
+      }
+    },
+    "/v1/auth/register": {
+      "post": {
+        "operationId": "register",
+        "summary": "Create an account and sign in",
+        "description": "Also sends a verification email.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "example": "priya@example.com",
+                    "type": "string",
+                    "maxLength": 254
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128,
+                    "format": "password"
+                  },
+                  "displayName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "locale": {
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name.",
+                    "example": "Asia/Kolkata"
+                  },
+                  "countryCode": {
+                    "description": "ISO 3166-1 alpha-2 country code; upper-cased.",
+                    "pattern": "^[A-Za-z]{2}$",
+                    "example": "IN",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "password",
+                  "displayName"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Account created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "409": {
+            "$ref": "#/components/responses/Problem409"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Sign in with email and password",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "example": "priya@example.com",
+                    "type": "string",
+                    "maxLength": 254
+                  },
+                  "password": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  }
+                },
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in; a new session.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "summary": "Sign out the current session",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session revoked."
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/sessions": {
+      "get": {
+        "operationId": "listSessions",
+        "summary": "List the caller's active sessions",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active sessions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sessions": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Session"
+                      }
+                    }
+                  },
+                  "required": [
+                    "sessions"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/sessions/{sessionId}": {
+      "delete": {
+        "operationId": "revokeSession",
+        "summary": "Revoke one of the caller’s sessions",
+        "description": "Other users' sessions are reported as not found.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "sessionId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Session revoked."
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "404": {
+            "$ref": "#/components/responses/Problem404"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/email-verification": {
+      "post": {
+        "operationId": "requestEmailVerification",
+        "summary": "Send a new email verification link",
+        "description": "Invalidates earlier links. No-op if already verified. Max 5 per hour.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Email queued (or already verified)."
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/email-verification/confirm": {
+      "post": {
+        "operationId": "confirmEmailVerification",
+        "summary": "Verify an email address with an emailed token",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 100,
+                    "description": "Token from the emailed link (URL fragment after #token=)."
+                  }
+                },
+                "required": [
+                  "token"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verified.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "required": [
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/password-reset": {
+      "post": {
+        "operationId": "requestPasswordReset",
+        "summary": "Request a password reset email",
+        "description": "Responds 202 whether or not the account exists.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "format": "email",
+                    "example": "priya@example.com",
+                    "type": "string",
+                    "maxLength": 254
+                  }
+                },
+                "required": [
+                  "email"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted."
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "confirmPasswordReset",
+        "summary": "Set a new password with an emailed token",
+        "description": "Signs out every session and notifies the account owner.",
+        "tags": [
+          "Authentication"
+        ],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "minLength": 10,
+                    "maxLength": 100,
+                    "description": "Token from the emailed link (URL fragment after #token=)."
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "minLength": 12,
+                    "maxLength": 128,
+                    "format": "password"
+                  }
+                },
+                "required": [
+                  "token",
+                  "newPassword"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Password changed."
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    },
+    "/v1/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "summary": "Get the signed-in account",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "required": [
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateCurrentUser",
+        "summary": "Update display name and globalization preferences",
+        "description": "Send only the fields to change; `countryCode: null` clears the country.",
+        "tags": [
+          "Account"
+        ],
+        "security": [
+          {
+            "sessionToken": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "displayName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "locale": {
+                    "type": "string"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "description": "IANA timezone name.",
+                    "example": "Asia/Kolkata"
+                  },
+                  "countryCode": {
+                    "anyOf": [
+                      {
+                        "description": "ISO 3166-1 alpha-2 country code; upper-cased.",
+                        "pattern": "^[A-Za-z]{2}$",
+                        "example": "IN",
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "required": [
+                    "user"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Problem400"
+          },
+          "401": {
+            "$ref": "#/components/responses/Problem401"
+          },
+          "403": {
+            "$ref": "#/components/responses/Problem403"
+          },
+          "413": {
+            "$ref": "#/components/responses/Problem413"
+          },
+          "415": {
+            "$ref": "#/components/responses/Problem415"
+          },
+          "429": {
+            "$ref": "#/components/responses/Problem429"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Opaque session token (`ibc_st_…`) from register or login."
+      }
+    },
+    "schemas": {
+      "Problem": {
+        "type": "object",
+        "description": "RFC 9457 problem details. Branch on `code`, not `detail`.",
+        "required": [
+          "type",
+          "title",
+          "status",
+          "code",
+          "detail",
+          "requestId"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "example": "about:blank"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer"
+          },
+          "code": {
+            "type": "string",
+            "description": "Stable machine-readable error code."
+          },
+          "detail": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "message"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthResult": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "session": {
+            "$ref": "#/components/schemas/IssuedSession"
+          }
+        },
+        "required": [
+          "user",
+          "session"
+        ]
+      },
+      "IssuedSession": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "token": {
+            "type": "string",
+            "description": "Bearer token. Shown once; store securely."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "token",
+          "expiresAt"
+        ]
+      },
+      "Session": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "current": {
+            "type": "boolean",
+            "description": "True for the session making this request."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          },
+          "lastSeenAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          },
+          "ip": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "userAgent": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "current",
+          "createdAt",
+          "lastSeenAt",
+          "expiresAt",
+          "ip",
+          "userAgent"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "emailVerified": {
+            "type": "boolean"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended",
+              "deactivated"
+            ]
+          },
+          "locale": {
+            "type": "string",
+            "example": "en-IN"
+          },
+          "timezone": {
+            "type": "string",
+            "example": "Asia/Kolkata"
+          },
+          "countryCode": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 2
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "example": "IN"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "example": "2026-10-31T09:30:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "emailVerified",
+          "displayName",
+          "status",
+          "locale",
+          "timezone",
+          "countryCode",
+          "createdAt",
+          "updatedAt"
+        ]
+      }
+    },
+    "responses": {
+      "Problem400": {
+        "description": "Invalid request (`validation_failed`, `invalid_token`, malformed JSON).",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem401": {
+        "description": "Missing, invalid, expired or revoked credentials.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem403": {
+        "description": "Authenticated but not permitted (`forbidden`, `account_inactive`).",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem404": {
+        "description": "Not found.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem409": {
+        "description": "Conflict (e.g. `email_taken`).",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem413": {
+        "description": "Request body larger than 64 KiB.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem415": {
+        "description": "Content type is not `application/json`.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem429": {
+        "description": "Rate limited (`rate_limited`, `too_many_attempts`, `too_many_requests`). See `retry-after`.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      },
+      "Problem503": {
+        "description": "Not ready.",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            }
+          }
+        }
+      }
+    }
+  }
+}

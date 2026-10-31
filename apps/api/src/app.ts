@@ -2,6 +2,7 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import Fastify, { LogController, type FastifyError, type FastifyInstance } from 'fastify';
+import { apiDocument } from './api-contract.js';
 import { registerIdentityModule } from './modules/identity/index.js';
 import type { Config } from './platform/config.js';
 import type { Database } from './platform/db/database.js';
@@ -9,6 +10,13 @@ import { healthRoutes, type HealthState } from './platform/health/routes.js';
 import { AppError } from './platform/http/errors.js';
 import { generateRequestId } from './platform/http/request-id.js';
 import { loggerOptions } from './platform/logger.js';
+import { nameActiveHttpSpan } from './platform/observability/trace-context.js';
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    registeredRoutes: readonly { method: string; url: string }[];
+  }
+}
 
 export interface AppDependencies {
   config: Config;
@@ -34,11 +42,22 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
     routerOptions: { caseSensitive: true, ignoreTrailingSlash: false },
   });
 
+  // Route table, used by the contract test to prove every route is documented.
+  const registeredRoutes: { method: string; url: string }[] = [];
+  app.decorate('registeredRoutes', registeredRoutes);
+  app.addHook('onRoute', (route) => {
+    for (const method of [route.method].flat()) {
+      if (method !== 'HEAD' && method !== 'OPTIONS')
+        registeredRoutes.push({ method, url: route.url });
+    }
+  });
+
   // JSON only: drop the default text/plain parser so other content types get 415.
   app.removeContentTypeParser('text/plain');
 
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-request-id', request.id);
+    nameActiveHttpSpan(request.method, request.routeOptions.url);
   });
 
   app.setErrorHandler((error: FastifyError | AppError, request, reply) => {
@@ -102,6 +121,10 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
     version: config.SERVICE_VERSION,
     region: config.DEPLOYMENT_REGION,
   });
+
+  // Machine-readable contract for web/mobile client generation (generated from the zod schemas).
+  const openApi = apiDocument();
+  app.get('/openapi.json', { logLevel: 'warn' }, async () => openApi);
 
   registerIdentityModule(app, {
     db,

@@ -31,7 +31,12 @@ export default tseslint.config(
   },
   {
     // Process entrypoints may print to stderr/stdout before a logger exists.
-    files: ['apps/*/src/main.ts', 'apps/*/src/worker.ts', 'apps/*/src/migrate.ts'],
+    files: [
+      'apps/*/src/main.ts',
+      'apps/*/src/worker.ts',
+      'apps/*/src/migrate.ts',
+      'apps/*/src/openapi-export.ts',
+    ],
     rules: { 'no-console': 'off' },
   },
   {

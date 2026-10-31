@@ -4,6 +4,9 @@ import { requirePermissions, requirePrincipal } from '../../platform/authz/http.
 import { parseInput } from '../../platform/http/validation.js';
 import type { UserRecord } from './repository.js';
 import {
+  type AuthResponse,
+  type SessionListResponse,
+  type UserResponse,
   confirmEmailVerificationSchema,
   confirmPasswordResetSchema,
   loginSchema,
@@ -23,7 +26,7 @@ function requestContext(request: FastifyRequest): RequestContext {
 }
 
 /** Public representation of the caller's own account. */
-function userDto(user: UserRecord) {
+function userDto(user: UserRecord): UserResponse {
   return {
     id: user.id,
     email: user.email,
@@ -38,7 +41,7 @@ function userDto(user: UserRecord) {
   };
 }
 
-function sessionDto(session: IssuedSession) {
+function sessionDto(session: IssuedSession): AuthResponse['session'] {
   return { id: session.id, token: session.token, expiresAt: session.expiresAt.toISOString() };
 }
 
@@ -73,7 +76,7 @@ export async function identityRoutes(
   app.get(
     '/auth/sessions',
     { preHandler: requirePermissions(Permissions.SelfSessionsManage) },
-    async (request) => {
+    async (request): Promise<SessionListResponse> => {
       const sessions = await service.listSessions(requirePrincipal(request));
       return {
         sessions: sessions.map((session) => ({
