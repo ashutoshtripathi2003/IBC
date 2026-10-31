@@ -1,0 +1,53 @@
+# Local development infrastructure. Not a production deployment.
+#   docker compose up -d            -> PostgreSQL only (run the API with `pnpm dev`)
+#   docker compose --profile app up -> also builds and runs API + outbox worker in containers
+name: ibc
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ibc
+      POSTGRES_PASSWORD: ibc_dev_password # local development only
+      POSTGRES_DB: ibc
+    ports:
+      - '127.0.0.1:5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/local/postgres-init.sql:/docker-entrypoint-initdb.d/10-test-db.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ibc -d ibc']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    profiles: ['app']
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    command: ['node', 'dist/migrate.js']
+    environment: &app-env
+      DATABASE_URL: postgres://ibc:ibc_dev_password@postgres:5432/ibc
+      NODE_ENV: development
+      LOG_LEVEL: info
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    profiles: ['app']
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    environment: *app-env
+    ports:
+      - '127.0.0.1:3000:3000'
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  worker:
+    profiles: ['app']
+    build: { context: ., dockerfile: apps/api/Dockerfile }
+    command: ['node', 'dist/worker.js']
+    environment: *app-env
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+volumes:
+  postgres-data:
