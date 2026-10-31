@@ -70,3 +70,14 @@ export const sessionIdParamsSchema = z.strictObject({ sessionId: z.uuid() });
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+const oneTimeTokenSchema = z.string().min(10).max(100);
+
+export const confirmEmailVerificationSchema = z.strictObject({ token: oneTimeTokenSchema });
+
+export const requestPasswordResetSchema = z.strictObject({ email: emailSchema });
+
+export const confirmPasswordResetSchema = z.strictObject({
+  token: oneTimeTokenSchema,
+  newPassword: passwordSchema,
+});

@@ -108,6 +108,9 @@ export async function buildApp(deps: AppDependencies): Promise<FastifyInstance> 
     config: {
       sessionTtlHours: config.SESSION_TTL_HOURS,
       passwordHashLog2Cost: config.PASSWORD_HASH_LOG2_COST,
+      appBaseUrl: config.APP_BASE_URL,
+      emailVerificationTtlHours: config.EMAIL_VERIFICATION_TTL_HOURS,
+      passwordResetTtlMinutes: config.PASSWORD_RESET_TTL_MINUTES,
     },
     authRateLimitPerMinute: config.RATE_LIMIT_AUTH_PER_MINUTE,
   });

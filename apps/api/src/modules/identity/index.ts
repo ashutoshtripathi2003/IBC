@@ -10,7 +10,12 @@ import { bearerToken } from '../../platform/authz/http.js';
 import { identityRoutes } from './routes.js';
 import { createIdentityService, type IdentityConfig } from './service.js';
 
-export { IdentityEvents, type UserCreatedV1, type UserProfileUpdatedV1 } from './events.js';
+export {
+  IdentityEvents,
+  type UserCreatedV1,
+  type UserEmailVerifiedV1,
+  type UserProfileUpdatedV1,
+} from './events.js';
 export type { IdentityService } from './service.js';
 
 export function registerIdentityModule(

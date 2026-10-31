@@ -47,9 +47,19 @@ const envSchema = z
     RATE_LIMIT_GLOBAL_PER_MINUTE: z.coerce.number().int().min(1).default(300),
     RATE_LIMIT_AUTH_PER_MINUTE: z.coerce.number().int().min(1).default(10),
 
+    /** Public URL of the web app; used to build links in emails. */
+    APP_BASE_URL: z.url().default('http://localhost:3001'),
+    AWS_REGION: z.string().default('ap-south-1'),
+    EMAIL_TRANSPORT: z.enum(['log', 'ses']).default('log'),
+    EMAIL_FROM: z.string().min(3).default('IBC <no-reply@localhost>'),
+    SES_CONFIGURATION_SET: z.string().optional(),
+    EMAIL_VERIFICATION_TTL_HOURS: z.coerce.number().int().min(1).max(168).default(24),
+    PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().min(5).max(240).default(30),
+
     OUTBOX_POLL_INTERVAL_MS: z.coerce.number().int().min(50).default(1000),
     OUTBOX_BATCH_SIZE: z.coerce.number().int().min(1).max(1000).default(100),
     OUTBOX_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(20),
+    EMAIL_MAX_ATTEMPTS: z.coerce.number().int().min(1).default(8),
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === 'production' && env.PASSWORD_HASH_LOG2_COST < 17) {
@@ -58,6 +68,30 @@ const envSchema = z
         path: ['PASSWORD_HASH_LOG2_COST'],
         message: 'must be at least 17 in production',
       });
+    }
+    if (env.NODE_ENV === 'production') {
+      // The log transport prints one-time links; it must never run in production.
+      if (env.EMAIL_TRANSPORT !== 'ses') {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['EMAIL_TRANSPORT'],
+          message: 'must be "ses" in production',
+        });
+      }
+      if (env.EMAIL_FROM.includes('localhost')) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['EMAIL_FROM'],
+          message: 'must be a real sender in production',
+        });
+      }
+      if (!env.APP_BASE_URL.startsWith('https://')) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['APP_BASE_URL'],
+          message: 'must use https in production',
+        });
+      }
     }
   });
 

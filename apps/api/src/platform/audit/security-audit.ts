@@ -38,14 +38,21 @@ export async function recordSecurityEvent(db: Queryable, entry: SecurityAuditEnt
 /** Counts recent events for a subject; used for DB-backed, multi-instance-safe throttling. */
 export async function countRecentSecurityEvents(
   db: Queryable,
-  query: { action: string; outcome: AuditOutcome; subjectId: string; windowSeconds: number },
+  query: {
+    action: string;
+    outcome: AuditOutcome;
+    subjectId: string;
+    windowSeconds: number;
+    /** Ignore events before this instant (e.g. the last password change). */
+    since?: Date;
+  },
 ): Promise<number> {
   const { rows } = await db.query<{ count: string }>(
     `SELECT count(*) AS count
        FROM audit.security_events
       WHERE subject_id = $1 AND action = $2 AND outcome = $3
-        AND occurred_at > now() - ($4::integer * interval '1 second')`,
-    [query.subjectId, query.action, query.outcome, query.windowSeconds],
+        AND occurred_at > greatest(now() - ($4::integer * interval '1 second'), $5::timestamptz)`,
+    [query.subjectId, query.action, query.outcome, query.windowSeconds, query.since ?? new Date(0)],
   );
   return Number(rows[0]?.count ?? 0);
 }

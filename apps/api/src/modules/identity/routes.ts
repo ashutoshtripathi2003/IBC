@@ -4,7 +4,10 @@ import { requirePermissions, requirePrincipal } from '../../platform/authz/http.
 import { parseInput } from '../../platform/http/validation.js';
 import type { UserRecord } from './repository.js';
 import {
+  confirmEmailVerificationSchema,
+  confirmPasswordResetSchema,
   loginSchema,
+  requestPasswordResetSchema,
   registerSchema,
   sessionIdParamsSchema,
   updateProfileSchema,
@@ -108,5 +111,33 @@ export async function identityRoutes(
       requestContext(request),
     );
     return { user: userDto(user) };
+  });
+
+  app.post(
+    '/auth/email-verification',
+    { config: authRateLimit, preHandler: requirePermissions(Permissions.SelfUpdate) },
+    async (request, reply) => {
+      await service.requestEmailVerification(requirePrincipal(request), requestContext(request));
+      return reply.code(202).send();
+    },
+  );
+
+  app.post('/auth/email-verification/confirm', { config: authRateLimit }, async (request) => {
+    const { token } = parseInput(confirmEmailVerificationSchema, request.body);
+    const user = await service.confirmEmailVerification(token, requestContext(request));
+    return { user: userDto(user) };
+  });
+
+  app.post('/auth/password-reset', { config: authRateLimit }, async (request, reply) => {
+    const { email } = parseInput(requestPasswordResetSchema, request.body);
+    await service.requestPasswordReset(email, requestContext(request));
+    // Same response whether or not the account exists.
+    return reply.code(202).send();
+  });
+
+  app.post('/auth/password-reset/confirm', { config: authRateLimit }, async (request, reply) => {
+    const { token, newPassword } = parseInput(confirmPasswordResetSchema, request.body);
+    await service.confirmPasswordReset(token, newPassword, requestContext(request));
+    return reply.code(204).send();
   });
 }

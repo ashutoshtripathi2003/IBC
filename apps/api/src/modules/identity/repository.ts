@@ -147,16 +147,22 @@ export async function findUserById(db: Queryable, userId: string): Promise<UserR
 export async function findCredentialByEmail(
   db: Queryable,
   emailNormalized: string,
-): Promise<{ user: UserRecord; passwordHash: string } | null> {
-  const { rows } = await db.query<UserRow & { password_hash: string }>(
-    `SELECT ${userColumns('u')}, c.password_hash
+): Promise<{ user: UserRecord; passwordHash: string; passwordUpdatedAt: Date } | null> {
+  const { rows } = await db.query<UserRow & { password_hash: string; password_updated_at: Date }>(
+    `SELECT ${userColumns('u')}, c.password_hash, c.updated_at AS password_updated_at
        FROM identity.users u
        JOIN identity.password_credentials c ON c.user_id = u.id
       WHERE u.email_normalized = $1`,
     [emailNormalized],
   );
   const row = rows[0];
-  return row ? { user: toUser(row), passwordHash: row.password_hash } : null;
+  return row
+    ? {
+        user: toUser(row),
+        passwordHash: row.password_hash,
+        passwordUpdatedAt: row.password_updated_at,
+      }
+    : null;
 }
 
 export async function updateUserProfile(
@@ -292,4 +298,97 @@ export async function revokeSession(
     [sessionId, userId, reason],
   );
   return (result.rowCount ?? 0) > 0;
+}
+
+export type OneTimeTokenPurpose = 'email_verification' | 'password_reset';
+
+/** Invalidates outstanding tokens so only the most recently issued link works. */
+export async function invalidateOneTimeTokens(
+  db: Queryable,
+  userId: string,
+  purpose: OneTimeTokenPurpose,
+): Promise<void> {
+  await db.query(
+    `UPDATE identity.one_time_tokens SET consumed_at = now()
+      WHERE user_id = $1 AND purpose = $2 AND consumed_at IS NULL`,
+    [userId, purpose],
+  );
+}
+
+export async function insertOneTimeToken(
+  db: Queryable,
+  token: {
+    id: string;
+    userId: string;
+    purpose: OneTimeTokenPurpose;
+    tokenHash: Buffer;
+    email: string;
+    expiresAt: Date;
+  },
+): Promise<void> {
+  await db.query(
+    `INSERT INTO identity.one_time_tokens (id, user_id, purpose, token_hash, email, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [token.id, token.userId, token.purpose, token.tokenHash, token.email, token.expiresAt],
+  );
+}
+
+export async function countRecentOneTimeTokens(
+  db: Queryable,
+  userId: string,
+  purpose: OneTimeTokenPurpose,
+  windowSeconds: number,
+): Promise<number> {
+  const { rows } = await db.query<{ count: string }>(
+    `SELECT count(*) AS count FROM identity.one_time_tokens
+      WHERE user_id = $1 AND purpose = $2
+        AND created_at > now() - ($3::integer * interval '1 second')`,
+    [userId, purpose, windowSeconds],
+  );
+  return Number(rows[0]?.count ?? 0);
+}
+
+/** Atomically consumes a valid token. Returns null if unknown, used, expired or wrong purpose. */
+export async function consumeOneTimeToken(
+  db: Queryable,
+  tokenHash: Buffer,
+  purpose: OneTimeTokenPurpose,
+): Promise<{ userId: string; email: string } | null> {
+  const { rows } = await db.query<{ user_id: string; email: string }>(
+    `UPDATE identity.one_time_tokens SET consumed_at = now()
+      WHERE token_hash = $1 AND purpose = $2 AND consumed_at IS NULL AND expires_at > now()
+      RETURNING user_id, email`,
+    [tokenHash, purpose],
+  );
+  const row = rows[0];
+  return row ? { userId: row.user_id, email: row.email } : null;
+}
+
+/** Marks the email verified only if `email` is still the user's current address. */
+export async function markEmailVerified(
+  db: Queryable,
+  userId: string,
+  email: string,
+): Promise<UserRecord | null> {
+  const { rows } = await db.query<UserRow>(
+    `UPDATE identity.users
+        SET email_verified_at = COALESCE(email_verified_at, now()), updated_at = now()
+      WHERE id = $1 AND email = $2
+      RETURNING ${USER_COLUMNS}`,
+    [userId, email],
+  );
+  return rows[0] ? toUser(rows[0]) : null;
+}
+
+export async function revokeAllSessions(
+  db: Queryable,
+  userId: string,
+  reason: string,
+): Promise<number> {
+  const result = await db.query(
+    `UPDATE identity.sessions SET revoked_at = now(), revoked_reason = $2
+      WHERE user_id = $1 AND revoked_at IS NULL`,
+    [userId, reason],
+  );
+  return result.rowCount ?? 0;
 }
