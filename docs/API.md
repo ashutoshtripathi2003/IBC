@@ -69,7 +69,8 @@ rejected with 400.
 { "user": User, "session": { "id": "uuid", "token": "ibc_st_…", "expiresAt": "…" } }
 ```
 
-Defaults: `locale` `en`, `timezone` `UTC`, `countryCode` `null`. Locale is canonicalized
+Defaults: `locale` `en`, `timezone` `UTC`, `countryCode` `null`. `countryCode` must be a
+current ISO 3166-1 code (or `XK`); deprecated codes such as `UK` (use `GB`) are rejected. Locale is canonicalized
 (`en-in` → `en-IN`); country is upper-cased. Emails are unique case-insensitively.
 
 **POST `/v1/auth/login`** `{ email, password }` → 200 `{ user, session }` (a new session each time).

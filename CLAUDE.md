@@ -27,6 +27,7 @@ right-sized initial capacity.
 | `apps/api/migrations`    | Forward-only SQL migrations (the only way to change the schema)              |
 | `apps/api/src/platform`  | Domain-agnostic capabilities: config, db, http, events, audit, authz, health |
 | `apps/api/src/modules/*` | Domain modules (currently: `identity`)                                       |
+| `apps/web`               | Public website (Next.js). Design system and motion rules: `docs/DESIGN.md`   |
 | `packages/kernel`        | Runtime-neutral shared primitives: UUIDv7, Money, globalization              |
 | `docs/`                  | PRODUCT, ARCHITECTURE, DATABASE, API, SECURITY, ENGINEERING                  |
 
@@ -36,6 +37,8 @@ right-sized initial capacity.
 pnpm install            # install
 pnpm dev                # run API from sources (needs DATABASE_URL, see .env.example)
 pnpm db:migrate         # apply migrations
+pnpm --filter @ibc/web dev       # website on :3001
+pnpm --filter @ibc/web test:e2e  # Playwright + axe against the production build (run `build` first)
 pnpm check              # format:check + lint + typecheck + test + build — run before declaring done
 ```
 
@@ -99,6 +102,10 @@ major infrastructure spending. When one is needed: stop, explain the decision an
   background work. Never put secrets or personal data in span attributes.
 - **Security audit:** authentication/authorization-relevant actions call
   `recordSecurityEvent`. Never put secrets in audit details.
+- **Website:** follow `docs/DESIGN.md`. Use design tokens (never raw colours), one typeface,
+  colour only with its meaning (jade = verified, marigold = action/money). Never show invented
+  metrics, testimonials or members; label interface previews as illustrations. Every motion
+  must respect `prefers-reduced-motion`; content must be visible without JavaScript.
 - **Cross-platform:** code and scripts must work on macOS, Windows and Linux (no bash-only
   npm scripts, no OS-specific native deps without justification).
 

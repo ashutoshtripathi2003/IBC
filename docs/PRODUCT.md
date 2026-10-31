@@ -40,7 +40,8 @@ multi-currency, multi-timezone from the start; English first.
 | Account preferences: display name, locale, timezone, country                                                                                     | **Built (API)**                       |
 | Email verification, password reset                                                                                                               | **Built (API)**; email via Amazon SES |
 | Professional profile, organizations, network, catalog, content, messaging, RFQ/quote/order, payments, trust/verification, reputation, search, AI | Not started                           |
-| Web app, mobile app                                                                                                                              | Not started                           |
+| Public website (story, pillar pages, about)                                                                                                      | **Built** (pre-launch messaging)      |
+| Web app (signed-in product), mobile app                                                                                                          | Not started                           |
 
 ## Open product questions
 

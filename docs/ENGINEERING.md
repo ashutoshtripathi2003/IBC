@@ -83,6 +83,18 @@ Every runtime dependency must be justified here.
 | `@aws-sdk/client-sesv2`                                                                                                                                                                            | api (worker) | Amazon SES delivery for transactional email (AWS chosen as cloud). Credentials come from the IAM role, never config                                                                                                       |
 | `@opentelemetry/api`, `sdk-trace`, `context-async-hooks`, `core`, `resources`, `semantic-conventions`, `exporter-trace-otlp-http`, `instrumentation`, `instrumentation-http`, `instrumentation-pg` | api          | Distributed tracing. Trace-only SDK chosen over `sdk-node` (which bundles gRPC/Zipkin/Prometheus exporters we do not use). `@fastify/otel` not used: it pins older OTel internals; route naming is a 10-line hook instead |
 
+Website (`apps/web`):
+
+| Package                                  | Why                                                                                                                  |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `next`, `react`, `react-dom`             | The chosen frontend stack (static generation, routing, metadata/SEO APIs)                                            |
+| `motion`                                 | Declarative animation (springs, scroll-linked values, presence) for UI motion; the network itself is plain Canvas 2D |
+| `@fontsource-variable/schibsted-grotesk` | Self-hosted brand typeface: no third-party font requests, works under a strict CSP                                   |
+
+Website dev: `@playwright/test` (pinned to the runner's browser version), `@axe-core/playwright`
+(accessibility checks), `@types/react`, `@types/react-dom`. Lint: `eslint-plugin-react-hooks`,
+`eslint-plugin-jsx-a11y` (strict), `@next/eslint-plugin-next`.
+
 Dev: `@seriousme/openapi-schema-validator` (validates the generated OpenAPI 3.1 document in tests), `typescript`, `typescript-eslint`, `eslint`, `@eslint/js`, `globals`, `prettier`,
 `vitest`, `tsx` (dev runner), `@types/node`, `@types/pg`.
 
@@ -108,6 +120,9 @@ Next.js/React Native, Turborepo. Each will be added when the feature that needs 
 | D13 | Database: RDS for PostgreSQL                                                                                     | Approved by founder                                                      |
 | D14 | OpenAPI 3.1 generated from zod schemas (no hand-written spec); committed copy with drift test                    | Adopted                                                                  |
 | D15 | OpenTelemetry tracing via a `--import` preload, enabled by standard `OTEL_*` env; OTLP to an ADOT sidecar on AWS | Adopted                                                                  |
+| D16 | Website: Next.js App Router, statically generated, CSS Modules + design tokens (no CSS framework)                | Adopted                                                                  |
+| D17 | Network visual in Canvas 2D (pseudo-3D), not WebGL/Three.js                                                      | Adopted — performance and graceful degradation                           |
+| D18 | The website consumes `@ibc/kernel` (Money, globalization) — same rules as the API                                | Adopted                                                                  |
 
 ## Open questions for the founder
 
@@ -123,3 +138,7 @@ Next.js/React Native, Turborepo. Each will be added when the feature that needs 
 6. Data residency/retention requirements (e.g. India DPDP Act obligations) — needs legal input;
    no compliance claims are made here.
 7. Repository licence (currently `UNLICENSED`/private).
+8. Analytics vendor for the website (the code is vendor-neutral; none is connected).
+9. Website domain (`NEXT_PUBLIC_SITE_URL`) for canonical URLs, sitemap and social previews.
+10. Pre-launch messaging: the site says accounts open "first in Maharashtra". Confirm wording
+    and whether to collect early-access sign-ups (needs a backend endpoint and consent text).

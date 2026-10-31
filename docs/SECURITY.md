@@ -80,6 +80,13 @@ before public launch.
 - Container: runs as non-root `node` user; production-only dependencies.
 - `.env*` files are git-ignored; configuration is validated at startup.
 
+### Website
+
+- Security headers on every response: CSP (`default-src 'self'`, no third-party origins,
+  `frame-ancestors 'none'`, `object-src 'none'`), HSTS, `nosniff`, strict referrer policy,
+  restrictive Permissions-Policy, COOP; no `x-powered-by`. Verified by an e2e test.
+- Fonts and assets are self-hosted; the site makes no third-party requests.
+
 ## Known gaps / risks (tracked)
 
 | Gap                                                                                               | Plan                                                                                                         |

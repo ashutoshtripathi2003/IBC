@@ -66,6 +66,34 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  web-e2e:
+    name: Website end-to-end (desktop + mobile, axe)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @ibc/web build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - run: pnpm --filter @ibc/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @ibc/web test:e2e
+        env:
+          CI: 'true'
+          NEXT_TELEMETRY_DISABLED: '1'
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: apps/web/test-results
+          retention-days: 7
+
   container:
     name: Container image build
     runs-on: ubuntu-latest

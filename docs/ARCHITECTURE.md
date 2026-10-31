@@ -193,7 +193,14 @@ sandbox used to build this code is not a server and holds no production data.
 3. Shard by tenant/region/user where justified (UUIDv7 keys are shard-safe; global
    uniqueness constraints like email need a global lookup — see DATABASE.md).
 
-## 9. Frontend and mobile (TARGET)
+## 9. Frontend and mobile
+
+**CURRENT:** `apps/web`, the public website (Next.js 16, statically generated pages, standalone
+output for containers, strict security headers/CSP, vendor-neutral analytics). See
+`docs/DESIGN.md`. It does not call the API yet; Join and Log in are informational until
+accounts open.
+
+**TARGET:**
 
 Next.js + React + TypeScript web app; React Native mobile. Both consume `/v1` and share
 `@ibc/kernel` (kept runtime-neutral: no Node-only imports). Web will hold the session

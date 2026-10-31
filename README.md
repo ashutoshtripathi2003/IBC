@@ -16,6 +16,7 @@ docker compose up -d        # PostgreSQL (dev + test databases)
 cp .env.example .env
 pnpm db:migrate
 pnpm dev                    # http://localhost:3000/health/ready
+pnpm --filter @ibc/web dev  # website on http://localhost:3001
 pnpm check                  # format, lint, typecheck, tests, build
 # API contract: http://localhost:3000/openapi.json (also docs/openapi.json)
 ```
@@ -24,6 +25,7 @@ pnpm check                  # format, lint, typecheck, tests, build
 
 | Path              | Contents                                                                                                                                                                                  |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`        | Public website (Next.js): design system, network visualisation, story pages                                                                                                               |
 | `apps/api`        | Platform API service, outbox worker, migrations                                                                                                                                           |
 | `packages/kernel` | Shared primitives: UUIDv7, Money, globalization                                                                                                                                           |
 | `docs/`           | [Architecture](docs/ARCHITECTURE.md) · [Database](docs/DATABASE.md) · [API](docs/API.md) · [Security](docs/SECURITY.md) · [Engineering](docs/ENGINEERING.md) · [Product](docs/PRODUCT.md) |
