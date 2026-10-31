@@ -17,6 +17,7 @@ cp .env.example .env
 pnpm db:migrate
 pnpm dev                    # http://localhost:3000/health/ready
 pnpm check                  # format, lint, typecheck, tests, build
+# API contract: http://localhost:3000/openapi.json (also docs/openapi.json)
 ```
 
 ## Repository

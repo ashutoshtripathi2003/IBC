@@ -63,6 +63,14 @@ before public launch.
 - Structured logs redact authorization headers, cookies, and password/token fields; request
   bodies are not logged.
 
+### Observability data
+
+- Trace spans record SQL statement text with bind placeholders only — never parameter values
+  (`enhancedDatabaseReporting: false`); verified by a test that searches exported spans for
+  the email, password and session token.
+- Health checks are not traced. Tracing is off unless an OTLP endpoint is configured.
+- `/openapi.json` is public: it describes the API surface but contains no data or secrets.
+
 ### Supply chain and repository
 
 - Lockfile (`pnpm-lock.yaml`) with `--frozen-lockfile` in CI; `engine-strict`.

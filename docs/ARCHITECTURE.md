@@ -141,19 +141,21 @@ JSON Schemas per event version; consumer framework with idempotency table and DL
 
 ## 6. Cross-cutting capabilities
 
-| Capability      | CURRENT                                                      | TARGET                                                                   |
-| --------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| Config          | zod-validated env, fail-fast, prod guards                    | Secrets manager injection                                                |
-| Logging         | pino JSON, request IDs, redaction                            | Shipping to central store                                                |
-| Tracing/metrics | Request IDs propagated (`x-request-id`)                      | OpenTelemetry SDK (traces, metrics) → OTLP collector                     |
-| Health          | `/health/live`, `/health/ready` (DB check, drain on SIGTERM) | Dependency-aware readiness per component                                 |
-| Rate limiting   | Per-instance in-memory; DB-backed per-account login throttle | Redis-backed distributed limits; edge/WAF limits                         |
-| AuthN           | Opaque server-side sessions                                  | MFA (TOTP/WebAuthn), passkeys, OIDC login, device management             |
-| AuthZ           | Code-defined RBAC + resource ownership checks                | Organization-scoped roles, ABAC policies                                 |
-| Search          | —                                                            | OpenSearch fed by events; failure degrades only search                   |
-| Cache           | —                                                            | Redis (sessions cache, rate limits, hot reads)                           |
-| AI              | —                                                            | Internal provider-agnostic AI gateway with timeouts/fallbacks            |
-| Analytics       | —                                                            | ClickHouse (or equivalent) fed by events; never queried on request paths |
+| Capability    | CURRENT                                                                                                                                                                                                                                | TARGET                                                                   |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Config        | zod-validated env, fail-fast, prod guards                                                                                                                                                                                              | Secrets manager injection                                                |
+| Logging       | pino JSON, request IDs, redaction                                                                                                                                                                                                      | Shipping to central store                                                |
+| Tracing       | OpenTelemetry traces (HTTP server + PostgreSQL spans, W3C `traceparent` propagation, route-named spans, `trace_id`/`span_id` in every log line, worker batch spans), OTLP/HTTP export; off unless `OTEL_EXPORTER_OTLP_ENDPOINT` is set | ADOT collector sidecar on ECS → AWS X-Ray                                |
+| Metrics       | —                                                                                                                                                                                                                                      | OpenTelemetry metrics (RED per route, pool, outbox lag) → CloudWatch     |
+| API contract  | OpenAPI 3.1 generated from the zod schemas; served at `/openapi.json`, committed as `docs/openapi.json`; tests prove every route is documented and responses conform                                                                   | Client SDK generation for web/mobile                                     |
+| Health        | `/health/live`, `/health/ready` (DB check, drain on SIGTERM)                                                                                                                                                                           | Dependency-aware readiness per component                                 |
+| Rate limiting | Per-instance in-memory; DB-backed per-account login throttle                                                                                                                                                                           | Redis-backed distributed limits; edge/WAF limits                         |
+| AuthN         | Opaque server-side sessions                                                                                                                                                                                                            | MFA (TOTP/WebAuthn), passkeys, OIDC login, device management             |
+| AuthZ         | Code-defined RBAC + resource ownership checks                                                                                                                                                                                          | Organization-scoped roles, ABAC policies                                 |
+| Search        | —                                                                                                                                                                                                                                      | OpenSearch fed by events; failure degrades only search                   |
+| Cache         | —                                                                                                                                                                                                                                      | Redis (sessions cache, rate limits, hot reads)                           |
+| AI            | —                                                                                                                                                                                                                                      | Internal provider-agnostic AI gateway with timeouts/fallbacks            |
+| Analytics     | —                                                                                                                                                                                                                                      | ClickHouse (or equivalent) fed by events; never queried on request paths |
 
 ## 7. Infrastructure (TARGET)
 
@@ -169,19 +171,19 @@ defaults to `AWS_REGION=ap-south-1`; transactional email uses Amazon SES in that
 development, GitHub Actions CI. **No AWS resources have been created**; the development
 sandbox used to build this code is not a server and holds no production data.
 
-**PROPOSED first AWS footprint (needs approval before any Terraform is applied):**
+**First AWS footprint** — compute and database approved by the founder; the rest is proposed. Nothing is created until the Terraform is reviewed and applied with approval:
 
-| Layer         | Proposal                                                                                | Alternatives                                                                        |
-| ------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| Accounts      | AWS Organizations: separate `staging` and `production` accounts                         | single account (not recommended)                                                    |
-| Network       | VPC across 3 AZs in ap-south-1, private subnets for compute and data                    |                                                                                     |
-| Compute       | ECS on Fargate (API + worker; migrations as a one-off task) — lowest ops cost at launch | EKS (Kubernetes, the stated long-term target; adds control-plane cost and ops load) |
-| Database      | RDS for PostgreSQL 16, Multi-AZ, encrypted, automated backups + PITR                    | Aurora PostgreSQL (better scaling/failover, higher base cost)                       |
-| Edge          | CloudFront + AWS WAF + Shield Standard; ALB in front of the API                         |                                                                                     |
-| Email         | SES (verified domain, DKIM/SPF/DMARC, configuration set for bounces/complaints)         |                                                                                     |
-| Secrets       | Secrets Manager / SSM Parameter Store; IAM roles for tasks (no static keys)             |                                                                                     |
-| Observability | CloudWatch logs/metrics; OpenTelemetry → AWS X-Ray or managed Grafana                   |                                                                                     |
-| IaC           | Terraform/OpenTofu with remote state in S3, per-environment workspaces                  |                                                                                     |
+| Layer         | Proposal                                                                                              | Alternatives                              |
+| ------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| Accounts      | AWS Organizations: separate `staging` and `production` accounts                                       | single account (not recommended)          |
+| Network       | VPC across 3 AZs in ap-south-1, private subnets for compute and data                                  |                                           |
+| Compute       | **DECIDED: ECS on Fargate** (API + worker services; migrations as a one-off task before each rollout) | EKS later if/when Kubernetes is justified |
+| Database      | **DECIDED: RDS for PostgreSQL 16**, Multi-AZ, encrypted, automated backups + PITR                     | Aurora later if scale requires            |
+| Edge          | CloudFront + AWS WAF + Shield Standard; ALB in front of the API                                       |                                           |
+| Email         | SES (verified domain, DKIM/SPF/DMARC, configuration set for bounces/complaints)                       |                                           |
+| Secrets       | Secrets Manager / SSM Parameter Store; IAM roles for tasks (no static keys)                           |                                           |
+| Observability | CloudWatch logs; ADOT collector sidecar receiving OTLP from the app → X-Ray traces                    | managed Grafana                           |
+| IaC           | Terraform/OpenTofu with remote state in S3, per-environment workspaces                                |                                           |
 
 ## 8. Scale path for the data layer
 

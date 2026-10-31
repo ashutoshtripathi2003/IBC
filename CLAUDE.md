@@ -92,6 +92,11 @@ major infrastructure spending. When one is needed: stop, explain the decision an
   are derived and must be rebuildable; their failure must not take down core flows.
 - **Errors:** throw `AppError`/`Errors.*`; clients receive RFC 9457 problem+json with a stable
   `code`. Never leak internals in 5xx responses.
+- **API contract:** every route is declared in its module's `openapi.ts`; after changing
+  routes or schemas run `pnpm --filter @ibc/api openapi:export` and commit `docs/openapi.json`
+  (the contract test fails otherwise). Never hand-edit `docs/openapi.json`.
+- **Tracing:** processes start with `node --import ./dist/telemetry.js …`; use `withSpan` for
+  background work. Never put secrets or personal data in span attributes.
 - **Security audit:** authentication/authorization-relevant actions call
   `recordSecurityEvent`. Never put secrets in audit details.
 - **Cross-platform:** code and scripts must work on macOS, Windows and Linux (no bash-only

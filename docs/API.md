@@ -132,8 +132,23 @@ verified (the reset proves mailbox control), clears the failed-login throttle, a
 }
 ```
 
+## OpenAPI (CURRENT)
+
+The OpenAPI 3.1 contract is generated from the same zod schemas that validate requests:
+
+- Served at **`GET /openapi.json`** (public, not part of the contract itself).
+- Committed at [`docs/openapi.json`](openapi.json) for review and client generation.
+  Regenerate with `pnpm --filter @ibc/api openapi:export`; CI fails if it is stale.
+- Tests prove every registered route is documented (and vice versa), the document is valid
+  OpenAPI 3.1, and real responses conform to the documented response schemas.
+- Response schemas allow additional properties: clients must ignore unknown fields.
+
+## Tracing headers
+
+Incoming W3C `traceparent`/`tracestate` headers are honoured, so a trace started at the
+edge or in a client continues through the API and its database queries.
+
 ## TARGET
 
-OpenAPI 3.1 document generated from the zod schemas and published with the service;
-contract tests for web/mobile clients; cursor-based pagination convention; idempotency keys
-(`Idempotency-Key` header) for all non-idempotent commerce operations (RFQ, order, payment).
+Generated TypeScript client for web/mobile; cursor-based pagination convention; idempotency
+keys (`Idempotency-Key`) for all non-idempotent commerce operations (RFQ, order, payment).
