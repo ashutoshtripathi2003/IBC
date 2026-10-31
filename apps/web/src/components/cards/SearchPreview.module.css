@@ -1,12 +1,16 @@
 .preview {
   display: grid;
+  /* Self-contained: never let the one-line query size this component or its parent. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
   width: 100%;
+  min-width: 0;
   max-width: 34rem;
 }
 
 .field {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: var(--space-3);
   min-height: 3.5rem;
@@ -23,6 +27,7 @@
 }
 
 .query {
+  position: relative;
   min-width: 0;
   overflow: hidden;
   white-space: nowrap;
@@ -47,7 +52,7 @@
 
 .results {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-3);
 }
 
@@ -62,6 +67,6 @@
 
 @media (max-width: 520px) {
   .results {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }

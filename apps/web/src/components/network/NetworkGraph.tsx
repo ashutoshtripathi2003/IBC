@@ -92,9 +92,12 @@ export function NetworkGraph({
     const initial = sceneRef.current;
     renderer.setScene(initial.scene, initial.focusKind ? { focusKind: initial.focusKind } : {});
 
-    const onResize = () => {
+    // Observe the canvas itself, not the window: its real size can change when styles
+    // arrive or the layout changes, and the pixel buffer must follow.
+    const resizeObserver = new ResizeObserver(() => {
       renderer.resize();
-    };
+    });
+    resizeObserver.observe(canvas);
     const onPointer = (event: PointerEvent) => {
       if (event.pointerType === 'mouse') renderer.setPointer(event.clientX, event.clientY);
     };
@@ -106,7 +109,6 @@ export function NetworkGraph({
       else renderer.start();
     };
     const target: HTMLElement | Window = variant === 'stage' ? window : canvas;
-    window.addEventListener('resize', onResize);
     target.addEventListener('pointermove', onPointer as EventListener);
     document.documentElement.addEventListener('pointerleave', onLeave);
     document.addEventListener('visibilitychange', onVisibility);
@@ -125,7 +127,7 @@ export function NetworkGraph({
 
     return () => {
       observer?.disconnect();
-      window.removeEventListener('resize', onResize);
+      resizeObserver.disconnect();
       target.removeEventListener('pointermove', onPointer as EventListener);
       document.documentElement.removeEventListener('pointerleave', onLeave);
       document.removeEventListener('visibilitychange', onVisibility);
@@ -143,7 +145,13 @@ export function NetworkGraph({
       className={[styles.root, styles[variant], className].filter(Boolean).join(' ')}
       aria-hidden="true"
     >
-      <canvas ref={canvasRef} className={styles.canvas} />
+      {/* Inline sizing applies before any stylesheet loads, so the canvas can never take its
+          intrinsic pixel-buffer width and widen the page. */}
+      <canvas
+        ref={canvasRef}
+        className={styles.canvas}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+      />
     </div>
   );
 }

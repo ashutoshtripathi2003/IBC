@@ -67,6 +67,31 @@ test.describe('every page', () => {
   }
 });
 
+test('the page never becomes wider than the screen at any scroll position', async ({ page }) => {
+  await page.goto('/');
+  const height = await page.evaluate(() => document.documentElement.scrollHeight);
+  const viewport = page.viewportSize()!.width;
+  for (let y = 0; y < height; y += 400) {
+    await page.evaluate((top) => {
+      window.scrollTo(0, top);
+    }, y);
+    await page.waitForTimeout(60);
+    const widths = await page.evaluate(() => [
+      window.innerWidth,
+      document.documentElement.scrollWidth,
+    ]);
+    expect(widths, `at scroll ${y}`).toEqual([viewport, viewport]);
+  }
+  // The menu button (mobile) or Join button (desktop) stays fully on screen afterwards.
+  await page.evaluate(() => {
+    window.scrollTo(0, 0);
+  });
+  const right = await page
+    .locator('header nav > :last-child')
+    .evaluate((el) => el.getBoundingClientRect().right);
+  expect(right).toBeLessThanOrEqual(viewport);
+});
+
 test('home tells the story in order and shows real platform numbers', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(

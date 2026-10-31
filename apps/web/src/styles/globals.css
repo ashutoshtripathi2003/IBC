@@ -7,6 +7,10 @@
 }
 
 html {
+  /* Defense in depth: mobile browsers widen the layout viewport if anything overflows,
+     even briefly. Clipping on the root (propagated to the viewport) prevents that and
+     does not break position: sticky. */
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: var(--nav-height);
@@ -74,6 +78,9 @@ button {
 
 .visually-hidden {
   position: absolute !important;
+  /* Pin to the inline start: left at its static position, hidden text inside long
+     single-line content could otherwise extend the page width on phones. */
+  inset-inline-start: 0;
   width: 1px;
   height: 1px;
   padding: 0;
