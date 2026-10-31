@@ -1,0 +1,32 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.verified {
+  color: var(--color-trust);
+}
+
+.neutral {
+  color: var(--color-text-muted);
+}
+
+.action {
+  color: var(--color-action);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-chip);
+  color: var(--color-text-muted);
+  font-size: var(--text-meta);
+  line-height: 1.2;
+  white-space: nowrap;
+}

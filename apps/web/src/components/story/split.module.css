@@ -1,0 +1,19 @@
+/* Text and an interface illustration side by side; stacked on small screens. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: center;
+}
+
+/* Let long single-line content (search query, tags) shrink instead of widening the column. */
+.split > * {
+  min-width: 0;
+}
+
+@media (max-width: 1023px) {
+  .split {
+    grid-template-columns: 1fr;
+    gap: var(--space-7);
+  }
+}

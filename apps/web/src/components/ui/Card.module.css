@@ -1,0 +1,34 @@
+.card {
+  --accent: var(--node-person);
+  position: relative;
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--accent);
+  border-radius: 2px 2px var(--radius-panel) var(--radius-panel);
+  background: linear-gradient(180deg, rgb(29 38 99 / 72%), rgb(15 22 64 / 82%));
+  backdrop-filter: blur(10px);
+}
+
+.person {
+  --accent: var(--node-person);
+}
+
+.company {
+  --accent: var(--node-company);
+}
+
+.product {
+  --accent: var(--node-product);
+}
+
+.service {
+  --accent: var(--node-service);
+}
+
+.opportunity {
+  --accent: var(--node-opportunity);
+}
+
+.trust {
+  --accent: var(--color-trust);
+}

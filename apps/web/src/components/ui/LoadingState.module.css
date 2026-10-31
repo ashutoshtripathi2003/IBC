@@ -1,0 +1,26 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thread {
+  stroke: var(--periwinkle);
+  stroke-width: 1.5;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: draw 1.4s var(--ease-in-out) infinite;
+}
+
+.knot {
+  fill: var(--marigold);
+}
+
+@keyframes draw {
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -80;
+  }
+}

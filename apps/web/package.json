@@ -1,0 +1,34 @@
+{
+  "name": "@ibc/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "IBC public website (Next.js).",
+  "type": "module",
+  "engines": {
+    "node": ">=22.15 <23"
+  },
+  "scripts": {
+    "predev": "pnpm --filter @ibc/kernel build",
+    "dev": "next dev --port 3001",
+    "prebuild": "pnpm --filter @ibc/kernel build",
+    "build": "next build",
+    "start": "next start --port 3001",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@fontsource-variable/schibsted-grotesk": "^5.3.0",
+    "@ibc/kernel": "workspace:*",
+    "motion": "14.9.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@playwright/test": "1.63.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0"
+  }
+}

@@ -1,0 +1,99 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  cursor: pointer;
+  isolation: isolate;
+  transition:
+    background-color var(--duration-base) var(--ease-out),
+    border-color var(--duration-base) var(--ease-out),
+    color var(--duration-base) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.md {
+  min-height: 2.75rem;
+  padding: 0 var(--space-5);
+  font-size: var(--text-label);
+}
+
+.lg {
+  min-height: 3.5rem;
+  padding: 0 var(--space-6);
+  font-size: var(--text-body);
+}
+
+.label {
+  position: relative;
+  z-index: 1;
+}
+
+.primary {
+  background: var(--color-action);
+  color: var(--color-on-action);
+}
+
+.primary:hover {
+  background: var(--color-action-hover);
+}
+
+/* A slow band of light crosses the primary button on hover. */
+.sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 35%) 50%, transparent 70%);
+  transform: translateX(-120%);
+  transition: transform var(--duration-slow) var(--ease-out);
+  pointer-events: none;
+}
+
+.button:hover .sheen {
+  transform: translateX(120%);
+}
+
+.secondary {
+  border-color: var(--color-border-strong);
+  background: rgb(10 15 46 / 40%);
+  color: var(--color-text);
+  backdrop-filter: blur(6px);
+}
+
+.secondary .sheen {
+  background: linear-gradient(105deg, transparent 30%, rgb(140 155 255 / 22%) 50%, transparent 70%);
+}
+
+.secondary:hover {
+  border-color: var(--periwinkle);
+}
+
+.quiet {
+  min-height: auto;
+  padding: 0;
+  border-radius: 0;
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Underline draws in from the left. */
+.quiet .label {
+  background: linear-gradient(currentcolor, currentcolor) 0 100% / 0 1px no-repeat;
+  transition: background-size var(--duration-base) var(--ease-out);
+}
+
+.quiet:hover .label,
+.quiet:focus-visible .label {
+  background-size: 100% 1px;
+}
+
+.button:active {
+  transform: translateY(1px);
+}

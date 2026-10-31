@@ -1,10 +1,23 @@
 // @ts-check
 import js from '@eslint/js';
+import nextPlugin from '@next/eslint-plugin-next';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/coverage/**', '**/node_modules/**'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/coverage/**',
+      '**/node_modules/**',
+      '**/.next/**',
+      '**/next-env.d.ts',
+      '**/test-results/**',
+      '**/playwright-report/**',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   {
@@ -40,7 +53,22 @@ export default tseslint.config(
     rules: { 'no-console': 'off' },
   },
   {
-    files: ['**/*.test.ts', '**/test/**/*.ts'],
+    // Website: React hooks correctness, accessibility and Next.js rules.
+    files: ['apps/web/**/*.{ts,tsx}'],
+    plugins: { 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y, '@next/next': nextPlugin },
+    languageOptions: { globals: { ...globals.browser } },
+    settings: { next: { rootDir: 'apps/web' } },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      ...jsxA11y.flatConfigs.strict.rules,
+      ...nextPlugin.configs.recommended.rules,
+      ...nextPlugin.configs['core-web-vitals'].rules,
+      // Safari/VoiceOver drops list semantics when list-style is removed; role="list" restores it.
+      'jsx-a11y/no-redundant-roles': ['error', { ul: ['list'], ol: ['list'] }],
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/test/**/*.ts', 'apps/web/e2e/**/*.ts'],
     rules: {
       // Tests inspect untyped JSON responses and DB rows.
       '@typescript-eslint/no-unsafe-assignment': 'off',

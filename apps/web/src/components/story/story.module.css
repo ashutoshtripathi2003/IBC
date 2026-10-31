@@ -1,0 +1,27 @@
+/* Shared typography and rhythm for story chapters. */
+.title {
+  font-size: var(--text-headline);
+  font-weight: 780;
+  line-height: 1.02;
+  letter-spacing: var(--tracking-headline);
+  text-wrap: balance;
+}
+
+.body {
+  max-width: var(--measure);
+  margin-top: var(--space-5);
+  color: var(--color-text-muted);
+  font-size: var(--text-lead);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.caption {
+  color: var(--color-text-subtle);
+  font-size: var(--text-meta);
+}
