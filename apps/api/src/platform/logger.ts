@@ -1,5 +1,6 @@
 import type { LoggerOptions } from 'pino';
 import type { Config } from './config.js';
+import { activeTraceIds } from './observability/trace-context.js';
 
 /**
  * Structured JSON logging (pino). Secrets are redacted defensively even though
@@ -14,6 +15,8 @@ export function loggerOptions(config: Config): LoggerOptions {
       region: config.DEPLOYMENT_REGION,
       env: config.NODE_ENV,
     },
+    // Adds trace_id/span_id to every log line written inside a traced operation.
+    mixin: activeTraceIds,
     timestamp: () => `,"time":"${new Date().toISOString()}"`,
     redact: {
       paths: [

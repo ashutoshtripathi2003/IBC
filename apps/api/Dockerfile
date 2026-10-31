@@ -25,7 +25,7 @@ COPY --from=build --chown=node:node /out ./
 USER node
 EXPOSE 3000
 # Orchestrators use /health/live and /health/ready; process types:
-#   API:        node dist/main.js
-#   Worker:     node dist/worker.js
+#   API:        node --import ./dist/telemetry.js dist/main.js
+#   Worker:     node --import ./dist/telemetry.js dist/worker.js
 #   Migrations: node dist/migrate.js
-CMD ["node", "dist/main.js"]
+CMD ["node", "--import", "./dist/telemetry.js", "dist/main.js"]

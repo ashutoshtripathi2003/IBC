@@ -1,6 +1,7 @@
 import { buildApp } from './app.js';
 import { loadConfig } from './platform/config.js';
 import { createDatabase } from './platform/db/database.js';
+import { shutdownTelemetry } from './platform/observability/trace-context.js';
 
 const SHUTDOWN_DRAIN_MS = 5_000;
 
@@ -23,6 +24,7 @@ async function main(): Promise<void> {
     try {
       await app.close();
       await db.close();
+      await shutdownTelemetry();
       process.exit(0);
     } catch (error) {
       app.log.error({ err: error }, 'error during shutdown');

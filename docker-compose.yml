@@ -44,7 +44,7 @@ services:
   worker:
     profiles: ['app']
     build: { context: ., dockerfile: apps/api/Dockerfile }
-    command: ['node', 'dist/worker.js']
+    command: ['node', '--import', './dist/telemetry.js', 'dist/worker.js']
     environment: *app-env
     depends_on:
       migrate: { condition: service_completed_successfully }

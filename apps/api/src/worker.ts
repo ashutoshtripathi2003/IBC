@@ -6,6 +6,7 @@ import { relayEmailBatch, type EmailTransport } from './platform/email/email.js'
 import { createLogEmailTransport, createSesEmailTransport } from './platform/email/transports.js';
 import { createLogPublisher, relayOutboxBatch } from './platform/events/relay.js';
 import { loggerOptions } from './platform/logger.js';
+import { shutdownTelemetry, withSpan } from './platform/observability/trace-context.js';
 
 /**
  * Background worker: relays domain events from the outbox and delivers queued
@@ -42,11 +43,13 @@ async function main(): Promise<void> {
   while (!controller.signal.aborted) {
     let backlog = false;
     try {
-      const events = await relayOutboxBatch(
-        db,
-        publisher,
-        { batchSize: config.OUTBOX_BATCH_SIZE, maxAttempts: config.OUTBOX_MAX_ATTEMPTS },
-        logger,
+      const events = await withSpan('outbox.relay_batch', {}, () =>
+        relayOutboxBatch(
+          db,
+          publisher,
+          { batchSize: config.OUTBOX_BATCH_SIZE, maxAttempts: config.OUTBOX_MAX_ATTEMPTS },
+          logger,
+        ),
       );
       backlog ||=
         events.published + events.failed + events.deadLettered >= config.OUTBOX_BATCH_SIZE;
@@ -54,11 +57,13 @@ async function main(): Promise<void> {
       logger.error({ err: error }, 'event relay iteration failed');
     }
     try {
-      const emails = await relayEmailBatch(
-        db,
-        emailTransport,
-        { batchSize: config.OUTBOX_BATCH_SIZE, maxAttempts: config.EMAIL_MAX_ATTEMPTS },
-        logger,
+      const emails = await withSpan('email.relay_batch', {}, () =>
+        relayEmailBatch(
+          db,
+          emailTransport,
+          { batchSize: config.OUTBOX_BATCH_SIZE, maxAttempts: config.EMAIL_MAX_ATTEMPTS },
+          logger,
+        ),
       );
       backlog ||= emails.sent + emails.failed + emails.deadLettered >= config.OUTBOX_BATCH_SIZE;
     } catch (error) {
@@ -71,6 +76,7 @@ async function main(): Promise<void> {
     );
   }
   await db.close();
+  await shutdownTelemetry();
   logger.info('worker stopped');
 }
 
