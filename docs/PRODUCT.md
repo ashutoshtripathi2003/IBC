@@ -34,13 +34,13 @@ multi-currency, multi-timezone from the start; English first.
 
 ## Delivery status
 
-| Capability                                                                                                                                       | Status                                      |
-| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| Accounts: registration, sign-in, sessions, sign-out, session management                                                                          | **Built (API)**                             |
-| Account preferences: display name, locale, timezone, country                                                                                     | **Built (API)**                             |
-| Email verification, password reset                                                                                                               | Not started (needs email provider decision) |
-| Professional profile, organizations, network, catalog, content, messaging, RFQ/quote/order, payments, trust/verification, reputation, search, AI | Not started                                 |
-| Web app, mobile app                                                                                                                              | Not started                                 |
+| Capability                                                                                                                                       | Status                                |
+| ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- |
+| Accounts: registration, sign-in, sessions, sign-out, session management                                                                          | **Built (API)**                       |
+| Account preferences: display name, locale, timezone, country                                                                                     | **Built (API)**                       |
+| Email verification, password reset                                                                                                               | **Built (API)**; email via Amazon SES |
+| Professional profile, organizations, network, catalog, content, messaging, RFQ/quote/order, payments, trust/verification, reputation, search, AI | Not started                           |
+| Web app, mobile app                                                                                                                              | Not started                           |
 
 ## Open product questions
 

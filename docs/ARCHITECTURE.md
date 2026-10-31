@@ -119,12 +119,22 @@ remains relational + search; decide with real query patterns.
 
 ### Event catalog (CURRENT)
 
-| Type                                  | Version | Payload                                                               | Emitted when           |
-| ------------------------------------- | ------- | --------------------------------------------------------------------- | ---------------------- |
-| `identity.user.created` (UserCreated) | 1       | `userId, displayName, locale, timezone, countryCode`                  | Registration commits   |
-| `identity.user.profile_updated`       | 1       | `userId, changedFields[], displayName, locale, timezone, countryCode` | `PATCH /v1/me` commits |
+| Type                                  | Version | Payload                                                               | Emitted when                                    |
+| ------------------------------------- | ------- | --------------------------------------------------------------------- | ----------------------------------------------- |
+| `identity.user.created` (UserCreated) | 1       | `userId, displayName, locale, timezone, countryCode`                  | Registration commits                            |
+| `identity.user.profile_updated`       | 1       | `userId, changedFields[], displayName, locale, timezone, countryCode` | `PATCH /v1/me` commits                          |
+| `identity.user.email_verified`        | 1       | `userId`                                                              | Email verification (not password reset) commits |
 
 Payloads deliberately exclude email and credentials.
+
+### Email delivery (CURRENT)
+
+Modules render their own email copy (locale-keyed catalog with language → English
+fallback) and call `enqueueEmail` inside the triggering transaction. The worker sends from
+`platform.email_outbox` through an `EmailTransport` — Amazon SES v2 in production, a log
+transport in development (forbidden in production by config). Delivery is at-least-once
+with capped exponential backoff and dead-lettering; bodies are purged after sending. One-time
+secrets therefore never travel through the event bus.
 
 **TARGET:** Kafka publisher replacing the log publisher; schema registry or checked-in
 JSON Schemas per event version; consumer framework with idempotency table and DLQ topics.
@@ -152,9 +162,26 @@ availability zones → Kubernetes → services → PostgreSQL / Redis / OpenSear
 object storage / analytics. Multi-AZ first, multi-region later; cell-based architecture when
 scale requires. All via Terraform/OpenTofu.
 
+**DECISION (founder, approved):** AWS, first region **Mumbai `ap-south-1`**. Configuration
+defaults to `AWS_REGION=ap-south-1`; transactional email uses Amazon SES in that region.
+
 **CURRENT:** Dockerfile (non-root, one image, three process types), docker-compose for local
-development, GitHub Actions CI. No cloud infrastructure has been created.
-**OPEN QUESTION (founder):** cloud provider and first region (see `docs/ENGINEERING.md`).
+development, GitHub Actions CI. **No AWS resources have been created**; the development
+sandbox used to build this code is not a server and holds no production data.
+
+**PROPOSED first AWS footprint (needs approval before any Terraform is applied):**
+
+| Layer         | Proposal                                                                                | Alternatives                                                                        |
+| ------------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Accounts      | AWS Organizations: separate `staging` and `production` accounts                         | single account (not recommended)                                                    |
+| Network       | VPC across 3 AZs in ap-south-1, private subnets for compute and data                    |                                                                                     |
+| Compute       | ECS on Fargate (API + worker; migrations as a one-off task) — lowest ops cost at launch | EKS (Kubernetes, the stated long-term target; adds control-plane cost and ops load) |
+| Database      | RDS for PostgreSQL 16, Multi-AZ, encrypted, automated backups + PITR                    | Aurora PostgreSQL (better scaling/failover, higher base cost)                       |
+| Edge          | CloudFront + AWS WAF + Shield Standard; ALB in front of the API                         |                                                                                     |
+| Email         | SES (verified domain, DKIM/SPF/DMARC, configuration set for bounces/complaints)         |                                                                                     |
+| Secrets       | Secrets Manager / SSM Parameter Store; IAM roles for tasks (no static keys)             |                                                                                     |
+| Observability | CloudWatch logs/metrics; OpenTelemetry → AWS X-Ray or managed Grafana                   |                                                                                     |
+| IaC           | Terraform/OpenTofu with remote state in S3, per-environment workspaces                  |                                                                                     |
 
 ## 8. Scale path for the data layer
 

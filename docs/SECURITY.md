@@ -26,6 +26,18 @@ before public launch.
   minutes → 429, even with the correct password), backed by the database so it holds across
   instances.
 
+### Account recovery and verification
+
+- Email verification and password reset use single-use, 256-bit tokens (`ibc_ev_`/`ibc_pr_`
+  prefixes), hashed at rest, short-lived (24 h / 30 min), invalidated when a newer one is issued.
+- Links carry the token in the URL fragment (not sent to servers, not in Referer headers).
+- Password-reset requests answer identically for unknown accounts; per-account cap of 5
+  emails/hour (anti email-bombing) on both flows.
+- Completing a reset revokes all sessions and sends a "password changed" notice; failed-login
+  throttling restarts from the password change.
+- Emails are sent asynchronously from a DB outbox; bodies (which contain links) are purged
+  after delivery. The development log transport is rejected by production config.
+
 ### Authorization
 
 - Deny-by-default RBAC; role → permission map is code (reviewed, tested).
@@ -62,20 +74,21 @@ before public launch.
 
 ## Known gaps / risks (tracked)
 
-| Gap                                                                                                                                     | Plan                                                                                                                      |
-| --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
-| No email verification yet; registration returns 409 for existing emails (account enumeration via signup, mitigated only by rate limits) | Add email delivery, then switch to an enumeration-safe flow (always 202 + email) — **founder decision on email provider** |
-| No password reset / account recovery                                                                                                    | Requires email delivery                                                                                                   |
-| No MFA, passkeys, OIDC sign-in                                                                                                          | TARGET: TOTP + WebAuthn/passkeys next; OIDC (Google/Microsoft/LinkedIn) later                                             |
-| No breached-password check                                                                                                              | Add k-anonymity check (HIBP range API) or offline list                                                                    |
-| Per-IP rate limit store is per instance                                                                                                 | Redis-backed limiter before running >1 replica                                                                            |
-| Account-throttle can be abused to temporarily lock a victim out                                                                         | Accepted trade-off; revisit with risk-based challenges/CAPTCHA                                                            |
-| No bot protection/WAF                                                                                                                   | Edge WAF + bot management at deployment                                                                                   |
-| Session tokens not bound to device; no device management UI                                                                             | TARGET device registry                                                                                                    |
-| scrypt runs on libuv threadpool (4 threads default) — CPU-bound under login bursts                                                      | Tune `UV_THREADPOOL_SIZE`, horizontal scaling; load test                                                                  |
-| Dev-only advisory: `minimatch` (via ESLint) GHSA-g3hv-75wg-m249, moderate                                                               | No fix within ESLint's supported range yet; not shipped in production image; Dependabot will surface the fix              |
-| No secrets manager, encryption-at-rest config, key rotation                                                                             | Cloud decision pending                                                                                                    |
-| GitHub Actions pinned by major tag, not SHA                                                                                             | Pin to SHAs before org-wide rollout                                                                                       |
+| Gap                                                                                               | Plan                                                                                                         |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Registration returns 409 for existing emails (signup-based enumeration, mitigated by rate limits) | Switch to always-202 + email; changes `/v1` behaviour — **founder approval needed**                          |
+| Unverified emails are not yet restricted from any action                                          | Decide which actions require a verified email once features exist                                            |
+| Email bodies with live links sit in `platform.email_outbox` until sent (minutes)                  | DB encryption at rest (RDS) + body purge on send; consider envelope encryption                               |
+| No MFA, passkeys, OIDC sign-in                                                                    | TARGET: TOTP + WebAuthn/passkeys next; OIDC (Google/Microsoft/LinkedIn) later                                |
+| No breached-password check                                                                        | Add k-anonymity check (HIBP range API) or offline list                                                       |
+| Per-IP rate limit store is per instance                                                           | Redis-backed limiter before running >1 replica                                                               |
+| Account-throttle can be abused to temporarily lock a victim out                                   | Accepted trade-off; revisit with risk-based challenges/CAPTCHA                                               |
+| No bot protection/WAF                                                                             | Edge WAF + bot management at deployment                                                                      |
+| Session tokens not bound to device; no device management UI                                       | TARGET device registry                                                                                       |
+| scrypt runs on libuv threadpool (4 threads default) — CPU-bound under login bursts                | Tune `UV_THREADPOOL_SIZE`, horizontal scaling; load test                                                     |
+| Dev-only advisory: `minimatch` (via ESLint) GHSA-g3hv-75wg-m249, moderate                         | No fix within ESLint's supported range yet; not shipped in production image; Dependabot will surface the fix |
+| No secrets manager, encryption-at-rest config, key rotation                                       | Cloud decision pending                                                                                       |
+| GitHub Actions pinned by major tag, not SHA                                                       | Pin to SHAs before org-wide rollout                                                                          |
 
 ## Rules (non-negotiable)
 

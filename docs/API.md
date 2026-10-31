@@ -31,20 +31,22 @@ rejected with 400.
 
 ## Error codes
 
-| HTTP      | code                           | Meaning                                                  |
-| --------- | ------------------------------ | -------------------------------------------------------- |
-| 400       | `validation_failed`            | Body/params invalid; see `errors[]`                      |
-| 400       | `http_400`                     | Malformed JSON                                           |
-| 401       | `unauthenticated`              | Missing/invalid/expired/revoked token                    |
-| 401       | `invalid_credentials`          | Email or password wrong (identical for unknown accounts) |
-| 403       | `forbidden`                    | Authenticated but lacks permission                       |
-| 403       | `account_inactive`             | Correct credentials, account suspended/deactivated       |
-| 404       | `not_found`, `route_not_found` |                                                          |
-| 409       | `email_taken`                  | Registration email already in use                        |
-| 413 / 415 | `http_413` / `http_415`        | Body too large / not JSON                                |
-| 429       | `rate_limited`                 | Per-IP rate limit                                        |
-| 429       | `too_many_attempts`            | Per-account failed-login throttle (10 failures / 15 min) |
-| 500       | `internal_error`               | No internal details are returned                         |
+| HTTP      | code                           | Meaning                                                      |
+| --------- | ------------------------------ | ------------------------------------------------------------ |
+| 400       | `validation_failed`            | Body/params invalid; see `errors[]`                          |
+| 400       | `http_400`                     | Malformed JSON                                               |
+| 401       | `unauthenticated`              | Missing/invalid/expired/revoked token                        |
+| 401       | `invalid_credentials`          | Email or password wrong (identical for unknown accounts)     |
+| 403       | `forbidden`                    | Authenticated but lacks permission                           |
+| 403       | `account_inactive`             | Correct credentials, account suspended/deactivated           |
+| 404       | `not_found`, `route_not_found` |                                                              |
+| 409       | `email_taken`                  | Registration email already in use                            |
+| 400       | `invalid_token`                | Verification/reset link unknown, used, expired or superseded |
+| 429       | `too_many_requests`            | Too many verification emails for this account (5/hour)       |
+| 413 / 415 | `http_413` / `http_415`        | Body too large / not JSON                                    |
+| 429       | `rate_limited`                 | Per-IP rate limit                                            |
+| 429       | `too_many_attempts`            | Per-account failed-login throttle (10 failures / 15 min)     |
+| 500       | `internal_error`               | No internal details are returned                             |
 
 ## Endpoints (CURRENT)
 
@@ -80,6 +82,31 @@ Defaults: `locale` `en`, `timezone` `UTC`, `countryCode` `null`. Locale is canon
 
 **DELETE `/v1/auth/sessions/{sessionId}`** (auth) → 204. Only the caller's own sessions;
 anything else returns 404.
+
+### Email verification
+
+Registration automatically sends a verification email. Links point to the web app
+(`APP_BASE_URL`) as `/verify-email#token=…`; the token is in the URL fragment so it never
+reaches server logs. The web app POSTs it to the API.
+
+**POST `/v1/auth/email-verification`** (auth) → 202. Sends a fresh link (previous links stop
+working). No-op if already verified. Max 5 per account per hour (`too_many_requests`).
+
+**POST `/v1/auth/email-verification/confirm`** `{ token }` → 200 `{ user }`. No session needed.
+Single use; expires after `EMAIL_VERIFICATION_TTL_HOURS` (default 24); fails if the account's
+email changed after the link was sent. Emits `identity.user.email_verified`.
+
+### Password reset
+
+**POST `/v1/auth/password-reset`** `{ email }` → 202 with an empty body **whether or not the
+account exists** (no enumeration). Active accounts receive a `/reset-password#token=…` link,
+valid `PASSWORD_RESET_TTL_MINUTES` (default 30), max 5 per account per hour (excess requests
+are silently dropped and audited).
+
+**POST `/v1/auth/password-reset/confirm`** `{ token, newPassword }` → 204. Sets the new
+password (same policy as registration), **signs out every session**, marks the email
+verified (the reset proves mailbox control), clears the failed-login throttle, and sends a
+"password changed" notice.
 
 ### Current user
 

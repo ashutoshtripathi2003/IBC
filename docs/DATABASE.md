@@ -37,6 +37,7 @@ Run: `pnpm db:migrate` (dev, from sources) or `node dist/migrate.js` (built imag
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `schema_migrations` | Applied migration versions + checksums (created by the migrator)                                                                                                                                                                                |
 | `outbox_events`     | Transactional outbox. Columns: `id, aggregate_type, aggregate_id, event_type, event_version, payload jsonb, metadata jsonb, occurred_at, published_at, attempts, next_attempt_at, last_error, dead_lettered_at`. Partial index on pending rows. |
+| `email_outbox`      | Transactional email outbox sent by the worker (retries, backoff, dead-letter). `text_body` may contain one-time links and is set to NULL once the email is sent or dead-lettered.                                                               |
 
 ### `audit` — owner: platform
 
@@ -46,19 +47,21 @@ Run: `pnpm db:migrate` (dev, from sources) or `node dist/migrate.js` (built imag
 
 ### `identity` — owner: identity module
 
-| Table                  | Purpose                                                                                                                                                                                               |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `users`                | Account: `email`, `email_normalized` (unique), `email_verified_at`, `display_name`, `status ∈ {active, suspended, deactivated}`, `locale`, `timezone`, `country_code` (nullable — no country assumed) |
-| `password_credentials` | `user_id` → scrypt hash (self-describing format). Separate from `users` so passkeys/OIDC/TOTP can be added as further credential tables                                                               |
-| `sessions`             | Opaque sessions: SHA-256 `token_hash` (unique), `expires_at`, `last_seen_at`, `revoked_at`, `revoked_reason`, `ip`, `user_agent`                                                                      |
-| `user_roles`           | Platform RBAC roles (`member`, `platform_admin`)                                                                                                                                                      |
+| Table                  | Purpose                                                                                                                                                                                                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `users`                | Account: `email`, `email_normalized` (unique), `email_verified_at`, `display_name`, `status ∈ {active, suspended, deactivated}`, `locale`, `timezone`, `country_code` (nullable — no country assumed)            |
+| `password_credentials` | `user_id` → scrypt hash (self-describing format). Separate from `users` so passkeys/OIDC/TOTP can be added as further credential tables                                                                          |
+| `sessions`             | Opaque sessions: SHA-256 `token_hash` (unique), `expires_at`, `last_seen_at`, `revoked_at`, `revoked_reason`, `ip`, `user_agent`                                                                                 |
+| `user_roles`           | Platform RBAC roles (`member`, `platform_admin`)                                                                                                                                                                 |
+| `one_time_tokens`      | Single-use tokens (`purpose ∈ {email_verification, password_reset}`): SHA-256 `token_hash` (unique), target `email`, `expires_at`, `consumed_at`. Issuing a new token invalidates older ones of the same purpose |
 
 ## Migration history
 
-| Version | Name                | Summary                                                              |
-| ------- | ------------------- | -------------------------------------------------------------------- |
-| 0001    | platform_foundation | `platform`, `audit` schemas; outbox; append-only security audit log  |
-| 0002    | identity_foundation | `identity` schema: users, password credentials, sessions, user roles |
+| Version | Name                    | Summary                                                              |
+| ------- | ----------------------- | -------------------------------------------------------------------- |
+| 0001    | platform_foundation     | `platform`, `audit` schemas; outbox; append-only security audit log  |
+| 0002    | identity_foundation     | `identity` schema: users, password credentials, sessions, user roles |
+| 0003    | email_tokens_and_outbox | `identity.one_time_tokens`; `platform.email_outbox`                  |
 
 ## Known scaling notes
 
@@ -69,4 +72,5 @@ Run: `pnpm db:migrate` (dev, from sources) or `node dist/migrate.js` (built imag
   period is a compliance decision — **OPEN QUESTION**).
 - Login throttling counts recent failures in `audit.security_events` via
   `security_events_subject_idx`; this moves to Redis when load requires.
+- `platform.email_outbox` and `identity.one_time_tokens` need retention jobs (delete sent/expired rows after N days) — TARGET.
 - Backups/PITR and restore drills are not configured (no production database exists yet).

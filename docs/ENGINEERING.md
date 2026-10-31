@@ -21,7 +21,7 @@ docker compose up -d                 # PostgreSQL with `ibc` and `ibc_test` data
 cp .env.example .env
 pnpm db:migrate
 pnpm dev                             # API on http://localhost:3000
-pnpm --filter @ibc/api dev:worker    # outbox relay (optional locally)
+pnpm --filter @ibc/api dev:worker    # events + email delivery (emails are printed to the log locally)
 ```
 
 Without Docker, any PostgreSQL 16 works: create role `ibc` and databases `ibc` and
@@ -64,15 +64,16 @@ Workspace packages export an `@ibc/source` condition pointing to `src/*.ts`. Dev
 
 Every runtime dependency must be justified here.
 
-| Package               | Where | Why                                                                                                         |
-| --------------------- | ----- | ----------------------------------------------------------------------------------------------------------- |
-| `fastify`             | api   | Fast, mature HTTP framework with first-class TypeScript, hooks, encapsulated plugins, built-in pino logging |
-| `@fastify/helmet`     | api   | Security headers                                                                                            |
-| `@fastify/cors`       | api   | Explicit CORS allow-listing                                                                                 |
-| `@fastify/rate-limit` | api   | Rate limiting; supports Redis store when we scale out                                                       |
-| `pino`                | api   | Structured JSON logger (same instance family Fastify uses); needed directly by the worker                   |
-| `pg`                  | api   | PostgreSQL driver. No ORM: explicit SQL keeps queries reviewable and performance predictable                |
-| `zod`                 | api   | Runtime validation for config and every API input; source for future OpenAPI generation                     |
+| Package                 | Where        | Why                                                                                                                 |
+| ----------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------- |
+| `fastify`               | api          | Fast, mature HTTP framework with first-class TypeScript, hooks, encapsulated plugins, built-in pino logging         |
+| `@fastify/helmet`       | api          | Security headers                                                                                                    |
+| `@fastify/cors`         | api          | Explicit CORS allow-listing                                                                                         |
+| `@fastify/rate-limit`   | api          | Rate limiting; supports Redis store when we scale out                                                               |
+| `pino`                  | api          | Structured JSON logger (same instance family Fastify uses); needed directly by the worker                           |
+| `pg`                    | api          | PostgreSQL driver. No ORM: explicit SQL keeps queries reviewable and performance predictable                        |
+| `zod`                   | api          | Runtime validation for config and every API input; source for future OpenAPI generation                             |
+| `@aws-sdk/client-sesv2` | api (worker) | Amazon SES delivery for transactional email (AWS chosen as cloud). Credentials come from the IAM role, never config |
 
 Dev: `typescript`, `typescript-eslint`, `eslint`, `@eslint/js`, `globals`, `prettier`,
 `vitest`, `tsx` (dev runner), `@types/node`, `@types/pg`.
@@ -82,25 +83,31 @@ Next.js/React Native, Turborepo. Each will be added when the feature that needs 
 
 ## Decisions log
 
-| #   | Decision                                                                                   | Status                                                                   |
-| --- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| D1  | pnpm workspace monorepo (`apps/*`, `packages/*`)                                           | Adopted                                                                  |
-| D2  | Modular service with schema-per-domain and enforced boundaries (see ARCHITECTURE §3)       | Adopted — **founder review requested**                                   |
-| D3  | Fastify + raw SQL (`pg`) + zod; no ORM                                                     | Adopted                                                                  |
-| D4  | UUIDv7 application-generated IDs                                                           | Adopted                                                                  |
-| D5  | Opaque server-side sessions (not JWT) for first-party clients                              | Adopted — revocable, no key management; OIDC/JWT for third parties later |
-| D6  | scrypt for password hashing (built-in, cross-platform); argon2id migration path via rehash | Adopted                                                                  |
-| D7  | Transactional outbox + relay worker; Kafka publisher later                                 | Adopted                                                                  |
-| D8  | Forward-only, checksummed SQL migrations with an in-house runner (~100 lines)              | Adopted — avoids a dependency; revisit if needs grow                     |
+| #   | Decision                                                                                                        | Status                                                                   |
+| --- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| D1  | pnpm workspace monorepo (`apps/*`, `packages/*`)                                                                | Adopted                                                                  |
+| D2  | Modular service with schema-per-domain and enforced boundaries (see ARCHITECTURE §3)                            | Adopted — **founder review requested**                                   |
+| D3  | Fastify + raw SQL (`pg`) + zod; no ORM                                                                          | Adopted                                                                  |
+| D4  | UUIDv7 application-generated IDs                                                                                | Adopted                                                                  |
+| D5  | Opaque server-side sessions (not JWT) for first-party clients                                                   | Adopted — revocable, no key management; OIDC/JWT for third parties later |
+| D6  | scrypt for password hashing (built-in, cross-platform); argon2id migration path via rehash                      | Adopted                                                                  |
+| D7  | Transactional outbox + relay worker; Kafka publisher later                                                      | Adopted                                                                  |
+| D8  | Forward-only, checksummed SQL migrations with an in-house runner (~100 lines)                                   | Adopted — avoids a dependency; revisit if needs grow                     |
+| D9  | Cloud: AWS, first region Mumbai `ap-south-1`                                                                    | Approved by founder                                                      |
+| D10 | Transactional email: Amazon SES (ap-south-1) behind an `EmailTransport` interface; emails queued in a DB outbox | Adopted (follows D9) — provider swappable                                |
+| D11 | One-time links carry tokens in the URL fragment; tokens single-use, hashed at rest                              | Adopted                                                                  |
 
 ## Open questions for the founder
 
-1. Cloud provider and first region (AWS `ap-south-1` Mumbai is a natural fit for a
-   Maharashtra launch; GCP `asia-south1` and Azure Central India are alternatives).
-2. Transactional email provider (needed for verification, password reset).
-3. Phone/SMS OTP sign-in for the Indian market (provider, cost, and whether phone becomes a
+1. ~~Cloud and region~~ — **AWS ap-south-1 (approved)**. Still open: ECS Fargate vs EKS,
+   RDS vs Aurora, and budget (see ARCHITECTURE §7).
+2. ~~Email provider~~ — Amazon SES. Still open: sending domain (e.g. `mail.<ibc-domain>`)
+   and SES production access request.
+3. Registration still returns 409 for an existing email; switching to an enumeration-safe
+   flow changes `/v1` behaviour and needs approval.
+4. Phone/SMS OTP sign-in for the Indian market (provider, cost, and whether phone becomes a
    primary identifier).
-4. Security contact and vulnerability disclosure policy.
-5. Data residency/retention requirements (e.g. India DPDP Act obligations) — needs legal input;
+5. Security contact and vulnerability disclosure policy.
+6. Data residency/retention requirements (e.g. India DPDP Act obligations) — needs legal input;
    no compliance claims are made here.
-6. Repository licence (currently `UNLICENSED`/private).
+7. Repository licence (currently `UNLICENSED`/private).
