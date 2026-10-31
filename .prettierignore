@@ -2,3 +2,8 @@ pnpm-lock.yaml
 dist
 coverage
 docs/openapi.json
+**/.next
+**/out
+**/test-results
+**/playwright-report
+**/next-env.d.ts

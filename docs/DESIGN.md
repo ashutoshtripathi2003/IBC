@@ -107,3 +107,17 @@ Content lives in `src/content` (`site.ts`, `examples.ts`), not in components.
 `signup_start`) go to registered providers. Today: a DOM event (`ibc:analytics`, for tests and
 tag managers) and a console logger in development. A vendor is added as one provider.
 **No vendor has been chosen** (founder decision).
+
+## Single-file preview
+
+For sharing a live preview where only one file can be hosted (for example a private Claude
+Artifact), build a self-contained copy of the home page:
+
+```sh
+cd apps/web
+IBC_STATIC_EXPORT=1 npx next build --webpack
+node scripts/build-preview.mjs   # writes out/preview.html (~1 MB, no network requests)
+```
+
+All scripts, styles and fonts are inlined. Links to other pages show a notice, because only
+the home page is included. This is a preview aid only; the production build is unchanged.

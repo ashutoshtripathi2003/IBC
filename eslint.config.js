@@ -13,6 +13,7 @@ export default tseslint.config(
       '**/coverage/**',
       '**/node_modules/**',
       '**/.next/**',
+      '**/out/**',
       '**/next-env.d.ts',
       '**/test-results/**',
       '**/playwright-report/**',
@@ -49,6 +50,7 @@ export default tseslint.config(
       'apps/*/src/worker.ts',
       'apps/*/src/migrate.ts',
       'apps/*/src/openapi-export.ts',
+      'apps/*/scripts/**',
     ],
     rules: { 'no-console': 'off' },
   },
@@ -80,7 +82,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['**/*.js'],
+    files: ['**/*.js', '**/*.mjs'],
     ...tseslint.configs.disableTypeChecked,
   },
 );

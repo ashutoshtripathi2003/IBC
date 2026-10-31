@@ -34,13 +34,21 @@ const securityHeaders = [
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
 ];
 
+/**
+ * IBC_STATIC_EXPORT=1 produces a plain static export (no server, no response headers),
+ * used for self-contained previews. The normal build is the standalone server.
+ */
+const staticExport = process.env.IBC_STATIC_EXPORT === '1';
+
 const config: NextConfig = {
-  output: 'standalone',
+  output: staticExport ? 'export' : 'standalone',
   poweredByHeader: false,
   reactStrictMode: true,
   // The monorepo root, so standalone output traces workspace dependencies correctly.
   outputFileTracingRoot: new URL('../..', import.meta.url).pathname,
-  headers: async () => [{ source: '/:path*', headers: securityHeaders }],
+  ...(staticExport
+    ? {}
+    : { headers: async () => [{ source: '/:path*', headers: securityHeaders }] }),
 };
 
 export default config;
