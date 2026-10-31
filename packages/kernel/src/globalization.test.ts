@@ -14,6 +14,21 @@ describe('globalization', () => {
       expect(isCountryCode(code)).toBe(false);
   });
 
+  it('rejects deprecated and exceptionally reserved codes so a country has one code', () => {
+    for (const code of ['UK', 'SU', 'YU', 'ZR', 'AN', 'DD', 'TP', 'AC', 'IC', 'EA']) {
+      expect(isCountryCode(code)).toBe(false);
+    }
+    expect(isCountryCode('GB')).toBe(true);
+    expect(isCountryCode('XK')).toBe(true);
+  });
+
+  it('accepts exactly the 249 ISO 3166-1 assigned codes plus XK', () => {
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let count = 0;
+    for (const a of letters) for (const b of letters) if (isCountryCode(a + b)) count += 1;
+    expect(count).toBe(250);
+  });
+
   it('validates ISO 4217 currency codes', () => {
     for (const code of ['INR', 'USD', 'EUR', 'JPY', 'AED']) expect(isCurrencyCode(code)).toBe(true);
     for (const code of ['inr', 'RS', 'QQQ', '']) expect(isCurrencyCode(code)).toBe(false);

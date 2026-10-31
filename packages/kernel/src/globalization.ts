@@ -7,13 +7,19 @@
 const regionNames = new Intl.DisplayNames(['en'], { type: 'region', fallback: 'none' });
 const currencyNames = new Intl.DisplayNames(['en'], { type: 'currency', fallback: 'none' });
 
-// ISO 3166-1 user-assigned ranges and non-country groupings ICU still names.
-// XK (Kosovo) is user-assigned but in universal practical use, so it is allowed.
-const NON_COUNTRY_REGION = /^(AA|Q[M-Z]|X[A-JL-Z]|ZZ|EU|EZ|UN)$/;
+// ISO 3166-1 user-assigned ranges, non-country groupings and "exceptionally reserved"
+// codes that ICU still names (AC, CP, CQ, DG, EA, IC, TA). XK (Kosovo) is user-assigned
+// but in universal practical use, so it is allowed.
+const NON_COUNTRY_REGION = /^(AA|Q[M-Z]|X[A-JL-Z]|ZZ|EU|EZ|UN|AC|CP|CQ|DG|EA|IC|TA)$/;
 
-/** ISO 3166-1 alpha-2 country code, e.g. "IN", "US", "AE". */
+/**
+ * ISO 3166-1 alpha-2 country code, e.g. "IN", "US", "AE". Deprecated codes ("UK", "SU",
+ * "YU", "ZR", ...) are rejected so one country can never be stored under two codes;
+ * ICU canonicalizes them to their replacements, which is how they are detected.
+ */
 export function isCountryCode(value: string): boolean {
   if (!/^[A-Z]{2}$/.test(value) || NON_COUNTRY_REGION.test(value)) return false;
+  if (Intl.getCanonicalLocales(`und-${value}`)[0] !== `und-${value}`) return false;
   return regionNames.of(value) !== undefined;
 }
 
