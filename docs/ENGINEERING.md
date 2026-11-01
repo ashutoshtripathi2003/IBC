@@ -2,12 +2,12 @@
 
 ## Toolchain
 
-| Tool       | Version                                                                 | Notes                                                |
-| ---------- | ----------------------------------------------------------------------- | ---------------------------------------------------- |
-| Node.js    | 22 LTS (`.nvmrc`, `engines >=22.15 <23`, required by OpenTelemetry)     |                                                      |
-| pnpm       | 10 (`packageManager` field; `corepack enable`)                          | Workspaces                                           |
-| TypeScript | 5.9, strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes` | ESM / NodeNext                                       |
-| PostgreSQL | 16                                                                      | Local via `docker compose up -d` or a native install |
+| Tool       | Version                                                                                    | Notes                                                |
+| ---------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------- |
+| Node.js    | 22 or 24 LTS (`.nvmrc` pins 22 for CI; `engines >=22.15 <25`; OpenTelemetry needs ≥ 22.15) |                                                      |
+| pnpm       | 10 (`packageManager` field; `corepack enable`)                                             | Workspaces                                           |
+| TypeScript | 5.9, strict + `noUncheckedIndexedAccess` + `exactOptionalPropertyTypes`                    | ESM / NodeNext                                       |
+| PostgreSQL | 16                                                                                         | Local via `docker compose up -d` or a native install |
 
 Works on macOS, Windows and Linux: no shell-specific npm scripts, no native addons.
 Line endings are normalized to LF (`.gitattributes`, `.editorconfig`).

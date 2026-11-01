@@ -5,7 +5,7 @@
   "description": "IBC public website (Next.js).",
   "type": "module",
   "engines": {
-    "node": ">=22.15 <23"
+    "node": ">=22.15 <25"
   },
   "scripts": {
     "predev": "pnpm --filter @ibc/kernel build",
