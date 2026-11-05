@@ -3,8 +3,6 @@ import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { AnalyticsBoot } from '@/components/layout/AnalyticsBoot';
-import { Footer } from '@/components/layout/Footer';
-import { Navbar } from '@/components/layout/Navbar';
 import { site } from '@/content/site';
 import { organizationJsonLd } from '@/lib/seo';
 
@@ -48,9 +46,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Navbar />
-        <main id="main">{children}</main>
-        <Footer />
+        {children}
         <AnalyticsBoot />
       </body>
     </html>

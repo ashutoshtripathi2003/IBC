@@ -12,6 +12,7 @@
     "dev": "next dev --port 3001",
     "prebuild": "pnpm --filter @ibc/kernel build",
     "build": "next build",
+    "build:export": "node scripts/export-static.mjs",
     "start": "next start --port 3001",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",

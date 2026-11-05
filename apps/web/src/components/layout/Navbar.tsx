@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { industries } from '@/content/catalog';
 import { accountLinks, primaryNav } from '@/content/site';
+import { useSession } from '@/lib/account/useSession';
 import { track } from '@/lib/analytics';
 import { Brand } from './Brand';
 import styles from './Navbar.module.css';
@@ -16,6 +17,8 @@ import styles from './Navbar.module.css';
 export function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Members see a way back to their workspace instead of Log in / Join.
+  const signedIn = useSession().state.status === 'signed-in';
   const menuRef = useRef<HTMLDivElement>(null);
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
@@ -166,22 +169,28 @@ export function Navbar() {
           <Link href="/search" className={styles.iconLink} aria-label="Search">
             <Icon name="search" size={20} />
           </Link>
-          <Link
-            href={accountLinks.login.href}
-            className={styles.login}
-            onClick={() => {
-              track({ name: 'login_click', location: 'header' });
-            }}
-          >
-            {accountLinks.login.label}
-          </Link>
-          <Button
-            href={accountLinks.join.href}
-            variant="accent"
-            event={{ name: 'join_click', location: 'header' }}
-          >
-            {accountLinks.join.label}
-          </Button>
+          {signedIn ? (
+            <Button href="/app">Dashboard</Button>
+          ) : (
+            <>
+              <Link
+                href={accountLinks.login.href}
+                className={styles.login}
+                onClick={() => {
+                  track({ name: 'login_click', location: 'header' });
+                }}
+              >
+                {accountLinks.login.label}
+              </Link>
+              <Button
+                href={accountLinks.join.href}
+                variant="accent"
+                event={{ name: 'join_click', location: 'header' }}
+              >
+                {accountLinks.join.label}
+              </Button>
+            </>
+          )}
         </div>
 
         <div className={styles.mobileActions}>
@@ -241,24 +250,32 @@ export function Navbar() {
               ))}
             </ul>
             <div className={styles.menuActions}>
-              <Button
-                href={accountLinks.join.href}
-                variant="accent"
-                size="lg"
-                fullWidth
-                event={{ name: 'join_click', location: 'mobile_menu' }}
-              >
-                {accountLinks.join.label}
-              </Button>
-              <Button
-                href={accountLinks.login.href}
-                variant="secondary"
-                size="lg"
-                fullWidth
-                event={{ name: 'login_click', location: 'mobile_menu' }}
-              >
-                {accountLinks.login.label}
-              </Button>
+              {signedIn ? (
+                <Button href="/app" size="lg" fullWidth>
+                  Dashboard
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    href={accountLinks.join.href}
+                    variant="accent"
+                    size="lg"
+                    fullWidth
+                    event={{ name: 'join_click', location: 'mobile_menu' }}
+                  >
+                    {accountLinks.join.label}
+                  </Button>
+                  <Button
+                    href={accountLinks.login.href}
+                    variant="secondary"
+                    size="lg"
+                    fullWidth
+                    event={{ name: 'login_click', location: 'mobile_menu' }}
+                  >
+                    {accountLinks.login.label}
+                  </Button>
+                </>
+              )}
             </div>
           </motion.div>
         )}

@@ -43,6 +43,14 @@ const PATHS: Record<IndustryIcon | UiIcon, string> = {
     'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   list: 'M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01',
+  bell: 'M6 16V11a6 6 0 1 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0',
+  home: 'M4 11l8-7 8 7v9h-5v-6H9v6H4z',
+  users:
+    'M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20c.6-3.5 3.2-5.5 6.5-5.5s5.9 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 6.5M18 14.8c2 .7 3.2 2.5 3.5 5.2',
+  file: 'M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6',
+  settings:
+    'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19.4 13.5l1.6 1.2-2 3.4-1.9-.7a7 7 0 0 1-1.7 1l-.3 2h-4l-.3-2a7 7 0 0 1-1.7-1l-1.9.7-2-3.4 1.6-1.2a7 7 0 0 1 0-3L3 9.3l2-3.4 1.9.7a7 7 0 0 1 1.7-1l.3-2h4l.3 2a7 7 0 0 1 1.7 1l1.9-.7 2 3.4-1.6 1.2a7 7 0 0 1 0 3z',
+  logout: 'M15 4h4v16h-4M10 8l-4 4 4 4M6 12h10',
 };
 
 export type UiIcon =
@@ -66,7 +74,13 @@ export type UiIcon =
   | 'plus'
   | 'globe'
   | 'grid'
-  | 'list';
+  | 'list'
+  | 'bell'
+  | 'home'
+  | 'users'
+  | 'file'
+  | 'settings'
+  | 'logout';
 
 export function Icon({
   name,

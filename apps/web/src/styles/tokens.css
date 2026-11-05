@@ -24,6 +24,10 @@
   --success: #1f7a4d;
   --success-100: #e4f3ea;
   --danger: #b4232f;
+  --danger-surface: #fdf1f2; /* error alert background */
+  --danger-text: #7a1f27; /* error alert text (≥ 7:1 on its surface) */
+  --success-surface: #eaf7f0;
+  --success-text: #0b4a2f;
 
   /* Semantic roles */
   --bg: var(--warm-white);

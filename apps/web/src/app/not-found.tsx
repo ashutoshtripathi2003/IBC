@@ -1,10 +1,11 @@
 import styles from '@/components/explore/detail.module.css';
 import { PageBody, PageHeader } from '@/components/explore/PageHeader';
+import { SiteChrome } from '@/components/layout/SiteChrome';
 import { Button } from '@/components/ui/Button';
 
 export default function NotFound() {
   return (
-    <>
+    <SiteChrome>
       <PageHeader
         title="Page not found"
         intro="The page may have moved, or the link may be mistyped."
@@ -17,6 +18,6 @@ export default function NotFound() {
           </Button>
         </div>
       </PageBody>
-    </>
+    </SiteChrome>
   );
 }

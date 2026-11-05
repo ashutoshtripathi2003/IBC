@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 import { site } from '@/content/site';
 
@@ -9,7 +10,8 @@ export const contentType = 'image/png';
 
 /** Social preview: the IBC mark, the headline and the brand name on warm white with a navy band. */
 export default async function OpengraphImage() {
-  const mark = await readFile(new URL('../../public/brand/ibc-mark@2x.png', import.meta.url));
+  // Rendered once at build time, from the web app's directory.
+  const mark = await readFile(join(process.cwd(), 'public', 'brand', 'ibc-mark@2x.png'));
   const markSrc = `data:image/png;base64,${mark.toString('base64')}`;
   return new ImageResponse(
     <div

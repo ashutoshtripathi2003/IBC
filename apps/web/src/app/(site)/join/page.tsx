@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import styles from '@/components/explore/detail.module.css';
 import { PageBody, PageHeader } from '@/components/explore/PageHeader';
 import { JoinIntent } from '@/components/account/JoinIntent';
+import { SignUpForm } from '@/components/account/SignUpForm';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { pageMetadata } from '@/lib/seo';
@@ -46,16 +47,22 @@ export default function JoinPage() {
               </ul>
             </section>
           </div>
-          <aside className={styles.sideCol}>
+          <aside className={`${styles.sideCol} ${styles.sideFirst}`}>
             <div className={styles.panel}>
-              <h2 className={styles.panelTitle}>Account sign-up</h2>
-              <p className={styles.note}>
-                Creating an account will be available on this page when IBC opens. Until then,
-                explore the platform to see how it works.
-              </p>
-              <Button href="/discover" fullWidth>
-                Explore IBC
-              </Button>
+              <h2 className={styles.panelTitle}>Create your account</h2>
+              <SignUpForm
+                preLaunch={
+                  <>
+                    <p className={styles.note}>
+                      Creating an account will be available on this page when IBC opens. Until then,
+                      explore the platform to see how it works.
+                    </p>
+                    <Button href="/discover" fullWidth>
+                      Explore IBC
+                    </Button>
+                  </>
+                }
+              />
             </div>
           </aside>
         </div>
