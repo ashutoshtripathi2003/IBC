@@ -16,7 +16,7 @@ const catalog: Record<string, Record<IdentityEmailTemplate, Copy>> = {
     verify_email: {
       subject: 'Verify your email for IBC',
       body: ({ displayName, link, expiresIn }) =>
-        `Hello ${displayName},\n\nPlease confirm your email address for IBC — Indian Business Circle:\n\n${link}\n\nThis link expires in ${expiresIn}. If you did not create an IBC account, you can ignore this email.\n`,
+        `Hello ${displayName},\n\nPlease confirm your email address for IBC — Industrial Business Circle:\n\n${link}\n\nThis link expires in ${expiresIn}. If you did not create an IBC account, you can ignore this email.\n`,
     },
     password_reset: {
       subject: 'Reset your IBC password',

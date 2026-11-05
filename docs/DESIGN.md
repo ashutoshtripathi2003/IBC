@@ -11,7 +11,8 @@ networking (people, roles, connections) with product and supplier discovery (cat
 specifications, minimum order, quotations), with its own identity rather than any other
 platform's look. The brand mark is the founder's logo (navy and gold: gear, orbit, globe,
 factory skyline), stored in `public/brand/` (a dark-on-light and a light-on-navy variant).
-The ® symbol is **not** shown until the registration is confirmed (founder decision).
+The logo carries the ® symbol at the founder's instruction (2026-11-05), who confirmed the
+mark is registered.
 
 The one expressive element is the network visual in the hero (the woven ring, the _Circle_);
 everything else is product UI.

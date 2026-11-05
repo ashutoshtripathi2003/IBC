@@ -3,7 +3,7 @@
   "info": {
     "title": "IBC Platform API",
     "version": "1.1.0",
-    "description": "IBC — Indian Business Circle platform API. JSON only; every response carries `x-request-id`; errors are RFC 9457 problem documents. `/v1` changes are additive only."
+    "description": "IBC — Industrial Business Circle platform API. JSON only; every response carries `x-request-id`; errors are RFC 9457 problem documents. `/v1` changes are additive only."
   },
   "paths": {
     "/health/live": {

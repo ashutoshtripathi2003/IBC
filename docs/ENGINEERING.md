@@ -141,7 +141,8 @@ Next.js/React Native, Turborepo. Each will be added when the feature that needs 
 7. Repository licence (currently `UNLICENSED`/private).
 8. Analytics vendor for the website (the code is vendor-neutral; none is connected).
 9. Website domain (`NEXT_PUBLIC_SITE_URL`) for canonical URLs, sitemap and social previews.
-10. Brand: confirm the ® registration for "Industrial Business Circle" before the symbol is
-    shown; confirm renaming the API email copy and OpenAPI description.
+10. Brand: the founder confirmed (2026-11-05) that the logo mark is registered (® shown) and
+    approved renaming the API email copy and OpenAPI description. Still open: record the
+    registration details (jurisdiction, number).
 11. Pre-launch messaging: the site says accounts open "first in Maharashtra". Confirm wording
     and whether to collect early-access sign-ups (needs a backend endpoint and consent text).

@@ -156,7 +156,7 @@ export function buildOpenApiDocument(options: {
       title: 'IBC Platform API',
       version: options.version,
       description:
-        'IBC — Indian Business Circle platform API. JSON only; every response carries `x-request-id`; ' +
+        'IBC — Industrial Business Circle platform API. JSON only; every response carries `x-request-id`; ' +
         'errors are RFC 9457 problem documents. `/v1` changes are additive only.',
     },
     ...(options.serverUrl ? { servers: [{ url: options.serverUrl }] } : {}),
