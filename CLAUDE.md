@@ -5,11 +5,12 @@ agent (or human) changing this repository. Read it fully before making changes.
 
 ## What this is
 
-**IBC — Indian Business Circle**: a global Professional + Business + Commerce Network
+**IBC — Industrial Business Circle**: a global Professional + Business + Commerce Network
 (people, companies, products, services, RFQs, quotes, orders, payments, trust, reputation).
 This is a real production product, not a demo or disposable MVP.
 
-- Public identity: **IBC — Indian Business Circle**.
+- Public identity: **IBC — Industrial Business Circle** (renamed from "Indian Business
+  Circle" by the founder; the API email copy and OpenAPI description still use the old name).
 - Internal codename: **PROJECT VIJAY** — internal only. Never use it in public-facing
   product copy, API responses, UI, package names visible to users, or marketing.
 - Never claim patents, trademarks, registrations, licenses, certifications or legal

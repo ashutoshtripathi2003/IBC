@@ -3,53 +3,70 @@
 The public website lives in `apps/web` (Next.js App Router, React 19, TypeScript). This
 document records the design decisions so the same system carries into the IBC product.
 
-## Concept: the Circle
+## Direction: an enterprise industrial network
 
-India's oldest global trade was cloth. IBC's visual identity treats the business network as
-woven fabric: people, companies and products are **knots**, relationships are **threads**,
-and business moving between them is the **shuttle** (marigold lights). In the hero the
-network is woven into a **ring**, the _Circle_ in Indian Business Circle. A single living
-network sits behind the home page and re-weaves itself chapter by chapter.
+IBC — Industrial Business Circle is a working B2B platform, so the site reads like one:
+light surfaces, dense but calm information, clear actions. It combines professional
+networking (people, roles, connections) with product and supplier discovery (catalogue,
+specifications, minimum order, quotations), with its own identity rather than any other
+platform's look. The brand mark is the founder's logo (navy and gold: gear, orbit, globe,
+factory skyline), stored in `public/brand/` (a dark-on-light and a light-on-navy variant).
+The ® symbol is **not** shown until the registration is confirmed (founder decision).
 
-That network is the one bold element. Everything around it stays quiet: one typeface,
-left-aligned text, generous space, no decorative gradients or card grids.
+The one expressive element is the network visual in the hero (the woven ring, the _Circle_);
+everything else is product UI.
 
 ## Tokens (`apps/web/src/styles/tokens.css`)
 
-| Token                       | Value                 | Meaning                                                   |
-| --------------------------- | --------------------- | --------------------------------------------------------- |
-| Indigo night `--indigo-950` | `#0a0f2e`             | Page background (a saturated blue, not tinted black)      |
-| Indigo deep `--indigo-800`  | `#141b4a`             | Surfaces                                                  |
-| Periwinkle                  | `#8c9bff`             | People, links                                             |
-| Marigold                    | `#f4a62a`             | Commerce, primary action, focus ring                      |
-| Jade                        | `#39c2a0`             | Trust and verification **only**                           |
-| Rose                        | `#ff7a90`             | Opportunities                                             |
-| Chalk                       | `#eef0fa`             | Text, companies                                           |
-| Mist / Haze                 | `#a9b1dc` / `#8790c4` | Secondary / tertiary text (both ≥ 4.5:1 on every surface) |
+| Token                        | Value         | Meaning                                                                    |
+| ---------------------------- | ------------- | -------------------------------------------------------------------------- |
+| Deep navy `--navy-900`       | `#10243e`     | Brand, primary actions, headings, footer                                   |
+| Industrial gold `--gold-500` | `#c49a42`     | Accent: Join, highlights, focus; `--gold-text` `#7d5f1f` for text on light |
+| Warm white `--warm-white`    | `#f7f8fa`     | Page background                                                            |
+| White `--white`              | `#ffffff`     | Cards and panels                                                           |
+| Graphite `--graphite`        | `#303846`     | Body text                                                                  |
+| Muted `--muted`              | `#5f6b7b`     | Secondary text (darkened from `#697586` to pass 4.5:1 on warm white)       |
+| Border `--border`            | `#e5e9ef`     | Dividers, card outlines                                                    |
+| `--verified`                 | success green | Verification **only**, shown only for genuinely verified records           |
 
-Colour encodes meaning, so it is never used decoratively: a jade element always means
-verified; marigold always means action or money.
+Colour carries meaning: green only ever means verified; gold means action, money or emphasis.
 
-**Type:** one family, Schibsted Grotesk (variable, self-hosted via `@fontsource-variable`, no
-third-party font requests). Scale: display, headline, subheadline, lead, body, label, meta.
-Display sizes are heavy and tightly tracked; body text stays ≤ 34rem per line.
+**Type:** one family, IBM Plex Sans (variable, self-hosted via `@fontsource-variable`, no
+third-party requests) — a technical, industrial sans that stays readable in dense tables.
+Scale `--text-xs` … `--text-4xl`; the hero headline is capped so it stays on two lines.
 
-**Shape:** controls are pills; product surfaces have a 2px top "thread" in their node colour;
-radii vary by role rather than one radius everywhere.
+**Shape:** 6–12px radii, 1px borders first, soft shadows only on hover/raised surfaces.
+
+## Information architecture
+
+Public: Home · Discover (`/discover`, industries) · Industries (`/industries/[slug]`) ·
+Businesses (+ profile) · Products (marketplace + detail) · Services · Network (people +
+profile) · Opportunities · Search (`/search`) · About · Join · Log in.
+People and companies are separate entities; a person can hold several roles (company or
+other organisation). The signed-in app shell (Dashboard, My Network, RFQs, Messages,
+Notifications, Profile, Settings) is a separate, later stage.
+
+## Data and search
+
+- `src/content/catalog/` holds typed **demo** records (industries, companies, products,
+  people, services, opportunities). Every company, product, person and opportunity is
+  `demo: true` and `verified: false`, and the UI marks each with a Demo badge. Prices use
+  kernel `Money` (integer minor units + ISO 4217); locations use ISO 3166-1 codes.
+- `lib/search`: client-side index over the catalogue; every query token must match; ranking
+  exact > prefix > substring with field weights; scopes (all, product, company, manufacturer,
+  supplier, person, service, opportunity), industry/country filters, sort; suggestions
+  (industries first). It is replaced by the API search service when the catalogue moves to
+  the backend; the components only depend on its result shape.
+- Listing pages use `Explorer` (URL-synced filters: industry, country, type, price; sort;
+  grid/list for products; empty state with a reset).
 
 ## Motion rules
 
-1. One orchestrated opening: the logo ties itself (≤ 1 s, once per session, never with
-   reduced motion), then the headline rises word by word.
-2. Scroll drives the network's scene changes; text never animates on every section.
-3. Motion answers actions: buttons lean toward the pointer (magnetic, fine pointers only),
-   the connect button confirms, the menu unfolds.
-4. Only `transform` and `opacity` are animated in the DOM; the network is one canvas.
-5. Above-the-fold entrances are CSS (they start at first paint, independent of hydration).
-   Scroll reveals use `useReveal`, which only hides content after hydration while it is
-   still off-screen, so server HTML is always fully visible.
-6. `prefers-reduced-motion`: no intro, no entrances, no idle network motion (a single static
-   frame per scene), no horizontal scroll sequence (it becomes a list), zero animation delays.
+1. Motion is functional: hover elevation, the Discover panel, the mobile menu, a 0.25s page
+   fade, scroll-linked section reveals (CSS scroll timelines, content visible without them).
+2. Only `transform` and `opacity` animate; the network is one canvas.
+3. `prefers-reduced-motion`: durations and delays are zeroed and the network shows a static
+   frame. Content never depends on JavaScript to become visible.
 
 Shared values: `lib/motion` (easings, durations, springs, hooks).
 
@@ -72,33 +89,35 @@ reused in the product (e.g. a member's own network view).
 
 ## Components
 
-UI: `Button` (primary / secondary / quiet), `Heading`, `Text`, `Container`, `Section`, `Card`,
-`Badge`, `Tag`, `Modal` (native `<dialog>`), `LoadingState`, `AnimatedCounter`, `RevealText`.
-Layout: `Navbar` (transparent → solid on scroll; animated, focus-trapped mobile menu),
-`Footer`, `Cursor` (a soft ring that trails the native cursor; fine pointers only), `Intro`,
-`AnalyticsBoot`. Cards: `ProfileCard`, `CompanyCard`, `ProductCard`, `SearchPreview`.
-Story: one component per chapter, composed in `HomeStory` over a single `StoryStage`.
+UI: `Button` (primary navy / accent gold / secondary / ghost), `Badge` (verified / demo /
+neutral / gold), `DemoBadge`, `Tag`, `Icon` (line icons for industries and UI), `Monogram`,
+`Modal`, `ResultSkeleton`. Layout: `Navbar` (Discover panel, search, Log in, Join IBC;
+focus-trapped mobile menu), `Footer`, `Brand`. Search: `SearchBox` (WAI-ARIA combobox with
+scopes and suggestions), `SearchResults`. Catalogue: `CompanyCard`, `ProductCard`,
+`PersonCard`, `ServiceCard`, `OpportunityCard`, `IndustryCard`, `ProductVisual`, `Grid`,
+`PageSection`. Explore: `Explorer`, `PageHeader`. Home: `Hero`, `HomeSections`.
 
-Content lives in `src/content` (`site.ts`, `examples.ts`), not in components.
+Actions that need an account (Request quotation, Connect, Message, Respond) go to
+`/join?intent=…`, which explains that the action opens with accounts at launch.
 
 ## Honesty rules for the website
 
-- No invented member counts, testimonials, logos or press.
-- Numbers shown are real platform capabilities computed from the same validation the API
-  uses (`@ibc/kernel`): 250 countries/territories, the IANA time zones, every ISO currency.
-- Interface previews use example names and say so in a caption.
-- IBC is pre-launch: Join and Log in pages state that accounts open first in Maharashtra.
+- No invented member counts, statistics, testimonials, ratings, customers, logos or press.
+- Every listing is a labelled demo; nothing shows a Verified badge until verification exists.
+- Product image areas show the industry icon on a technical grid, not stock photos, until
+  suppliers upload photos. Demo prices are marked as illustrative.
+- IBC is pre-launch: Join and Log in pages say so.
 
 ## Quality gates (website)
 
-- Unit tests (Vitest): graph, scenes, analytics, capability counts.
-- End-to-end (Playwright, desktop 1440×900 and phone 360×780): every page renders with one
-  `h1`, no console errors and no horizontal overflow; **axe WCAG 2.1 AA** has no serious or
-  critical violations; navigation, mobile menu focus trap, Escape, skip link, legend dialog,
-  reduced motion, analytics events, SEO metadata, robots, sitemap, Open Graph image, security
-  headers, 404.
-- Measured (local, phone viewport, 4× CPU throttle): LCP ≈ 0.55 s, CLS 0, network animation
-  ~30 fps under throttling; ≈ 200 KB gzipped JS (React, Next.js, Motion).
+- Unit tests (Vitest): graph, scenes, analytics, search.
+- End-to-end (Playwright, desktop 1440×900 and phone 360×780): 16 representative pages
+  (every section plus each detail type) render with one `h1`, no console errors, no
+  horizontal overflow and no serious/critical **axe WCAG 2.1 AA** violations; hero search
+  autocomplete and keyboard, search scopes and empty state, marketplace filters and URL
+  sync, product detail → supplier, quotation intent, Discover menu, mobile menu focus trap,
+  skip link, reduced motion, analytics, SEO metadata, robots, sitemap, Open Graph image,
+  security headers, 404.
 
 ## Analytics
 

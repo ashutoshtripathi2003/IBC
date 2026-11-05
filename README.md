@@ -1,4 +1,4 @@
-# IBC — Indian Business Circle
+# IBC — Industrial Business Circle
 
 A global Professional + Business + Commerce Network. _Build for global scale. Launch for local density._
 
@@ -31,7 +31,7 @@ use the site; close the window to stop it.
 
 | Path              | Contents                                                                                                                                                                                  |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`        | Public website (Next.js): design system, network visualisation, story pages                                                                                                               |
+| `apps/web`        | Public website (Next.js): industries, businesses, products, network, search                                                                                                               |
 | `apps/api`        | Platform API service, outbox worker, migrations                                                                                                                                           |
 | `packages/kernel` | Shared primitives: UUIDv7, Money, globalization                                                                                                                                           |
 | `docs/`           | [Architecture](docs/ARCHITECTURE.md) · [Database](docs/DATABASE.md) · [API](docs/API.md) · [Security](docs/SECURITY.md) · [Engineering](docs/ENGINEERING.md) · [Product](docs/PRODUCT.md) |

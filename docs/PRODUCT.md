@@ -5,7 +5,9 @@
 
 ## Identity
 
-**IBC — Indian Business Circle.** A global Professional + Business + Commerce Network.
+**IBC — Industrial Business Circle.** A global Professional + Business + Commerce Network.
+(Renamed by the founder from "Indian Business Circle"; motto: "Connect. Collaborate. Grow
+together.")
 (Internal codename PROJECT VIJAY is never used publicly.)
 
 IBC brings together professional networking, business networking, company/product/
@@ -40,7 +42,7 @@ multi-currency, multi-timezone from the start; English first.
 | Account preferences: display name, locale, timezone, country                                                                                     | **Built (API)**                       |
 | Email verification, password reset                                                                                                               | **Built (API)**; email via Amazon SES |
 | Professional profile, organizations, network, catalog, content, messaging, RFQ/quote/order, payments, trust/verification, reputation, search, AI | Not started                           |
-| Public website (story, pillar pages, about)                                                                                                      | **Built** (pre-launch messaging)      |
+| Public website: industries, businesses, products, services, network, opportunities, search (on labelled demo data), about                        | **Built** (pre-launch; demo data)     |
 | Web app (signed-in product), mobile app                                                                                                          | Not started                           |
 
 ## Open product questions
