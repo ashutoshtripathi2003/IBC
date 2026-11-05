@@ -10,6 +10,7 @@ import { Icon } from '@/components/ui/Icon';
 import { industries } from '@/content/catalog';
 import { accountLinks, primaryNav } from '@/content/site';
 import { useSession } from '@/lib/account/useSession';
+import { useScrolledPast } from '@/lib/motion/hooks';
 import { track } from '@/lib/analytics';
 import { Brand } from './Brand';
 import styles from './Navbar.module.css';
@@ -83,16 +84,21 @@ export function Navbar() {
     };
   }, [menuOpen]);
 
+  // On the home page the bar floats transparently over the dark cinematic hero until the
+  // visitor scrolls past it (or opens a menu).
+  const pastHero = useScrolledPast(480);
+  const overlay = pathname === '/' && !pastHero && !menuOpen && !discoverOpen;
+
   const isActive = (href: string) =>
     pathname === href ||
     pathname.startsWith(`${href}/`) ||
     (href === '/discover' && pathname.startsWith('/industries'));
 
   return (
-    <header className={styles.bar}>
+    <header className={`${styles.bar} ${overlay ? styles.overlay : ''}`}>
       <nav className={styles.inner} aria-label="Main">
         <Link href="/" className={styles.brand} aria-label="IBC, Industrial Business Circle, home">
-          <Brand />
+          <Brand tone={overlay ? 'light' : 'dark'} />
         </Link>
 
         <ul role="list" className={styles.links}>

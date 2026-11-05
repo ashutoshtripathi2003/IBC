@@ -7,6 +7,32 @@
   backdrop-filter: saturate(160%) blur(8px);
 }
 
+.bar {
+  transition:
+    background-color var(--duration-slow) var(--ease-out),
+    border-color var(--duration-slow) var(--ease-out);
+}
+
+/* Transparent over the home page's dark hero. */
+.overlay {
+  border-bottom-color: transparent;
+  background: linear-gradient(180deg, rgb(6 11 20 / 55%), transparent);
+  backdrop-filter: none;
+}
+
+.overlay .link,
+.overlay .login,
+.overlay .iconLink {
+  color: rgb(255 255 255 / 88%);
+}
+
+.overlay .link:hover,
+.overlay .login:hover,
+.overlay .iconLink:hover {
+  background: rgb(255 255 255 / 8%);
+  color: var(--white);
+}
+
 .inner {
   display: flex;
   align-items: center;
@@ -254,4 +280,8 @@
   .mobileActions {
     display: flex;
   }
+}
+
+.overlay .toggle {
+  color: var(--white);
 }
