@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Footer } from './Footer';
 import { Navbar } from './Navbar';
+import { SmoothScroll } from '@/components/motion/SmoothScroll';
 
 export function SiteChrome({ children }: { children: ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export function SiteChrome({ children }: { children: ReactNode }) {
       <Navbar />
       <main id="main">{children}</main>
       <Footer />
+      <SmoothScroll />
     </>
   );
 }

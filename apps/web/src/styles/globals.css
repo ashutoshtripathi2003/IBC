@@ -147,3 +147,46 @@ textarea {
     scroll-behavior: auto !important;
   }
 }
+
+/* Cinematic display type: condensed uppercase, used only for scene headlines. */
+.display {
+  font-family: var(--font-display);
+  font-stretch: var(--display-stretch);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+/* Masked line reveal: each .line clips its inner span, which rises into place. */
+.mask-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.mask-line > span {
+  display: block;
+}
+
+/* Lenis smooth scrolling (only active for fine pointers without reduced motion). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}

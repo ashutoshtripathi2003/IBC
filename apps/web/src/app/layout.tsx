@@ -1,4 +1,5 @@
 import '@fontsource-variable/ibm-plex-sans';
+import '@fontsource-variable/archivo/wdth.css';
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';

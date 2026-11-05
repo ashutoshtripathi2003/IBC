@@ -55,6 +55,11 @@ export default tseslint.config(
     rules: { 'no-console': 'off' },
   },
   {
+    // Offline asset tooling (render studio) runs partly inside a browser page.
+    files: ['apps/web/scripts/**'],
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+  },
+  {
     // Website: React hooks correctness, accessibility and Next.js rules.
     files: ['apps/web/**/*.{ts,tsx}'],
     plugins: { 'react-hooks': reactHooks, 'jsx-a11y': jsxA11y, '@next/next': nextPlugin },

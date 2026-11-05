@@ -113,6 +113,23 @@
   --chalk: #ffffff;
   --jade: #3fae7a;
 
+  /* Cinematic (homepage storytelling): near-black navy grounds, warm light, one display face */
+  --ink-950: #060b14; /* near-black with a navy cast, the darkest scene ground */
+  --ink-900: #0a1424;
+  --charcoal: #141a23;
+  --steel-300: #9aa7b8; /* secondary text on dark grounds (≥ 4.5:1 on --ink-950) */
+  --steel-500: #6c7a8d;
+  --haze: #d9c7a0; /* warm horizon light */
+  --font-display: 'Archivo Variable', 'Archivo', 'Arial Narrow', sans-serif;
+  --display-stretch: 72%; /* condensed width for cinematic headlines */
+  --display-2xl: clamp(3.25rem, 1rem + 9.2vw, 10.5rem);
+  --display-xl: clamp(2.75rem, 1rem + 6.4vw, 7.25rem);
+  --display-lg: clamp(2.25rem, 1rem + 4.2vw, 5rem);
+  --display-md: clamp(1.75rem, 1rem + 2.2vw, 3rem);
+  --eyebrow-tracking: 0.18em;
+  --ease-cinema: cubic-bezier(0.65, 0, 0.15, 1); /* long, decisive easing for reveals */
+  --duration-reveal: 1100ms;
+
   --header-height: 4.25rem;
   color-scheme: light;
 }
