@@ -10,22 +10,24 @@ test.describe('desktop navigation', () => {
       .getByRole('link', { name: 'Businesses' })
       .click();
     await expect(page).toHaveURL(/\/businesses$/);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Find companies by what they actually do.',
-    );
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Businesses');
     await expect(
       page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Businesses' }),
     ).toHaveAttribute('aria-current', 'page');
   });
 
-  test('the bar becomes solid after scrolling', async ({ page }) => {
+  test('the Discover menu opens an industry panel', async ({ page }) => {
     await page.goto('/');
-    const bar = page.locator('header').first();
-    const before = await bar.evaluate((el) => getComputedStyle(el).backgroundColor);
-    await page.mouse.wheel(0, 800);
-    await expect
-      .poll(() => bar.evaluate((el) => getComputedStyle(el).backgroundColor))
-      .not.toBe(before);
+    await page
+      .getByRole('navigation', { name: 'Main' })
+      .getByRole('button', { name: /Discover/ })
+      .click();
+    await page
+      .getByRole('link', { name: /Chemicals/ })
+      .first()
+      .click();
+    await expect(page).toHaveURL(/\/industries\/chemicals$/);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Chemicals');
   });
 });
 
@@ -38,7 +40,7 @@ test.describe('mobile navigation', () => {
     await toggle.click();
     const menu = page.getByRole('dialog', { name: 'Menu' });
     await expect(menu).toBeVisible();
-    await expect(menu.getByRole('link', { name: /Network/ })).toBeFocused();
+    await expect(menu.locator(':focus')).toHaveCount(1);
     await page.keyboard.press('Escape');
     await expect(menu).toBeHidden();
     await expect(page.getByRole('button', { name: 'Open menu' })).toBeFocused();

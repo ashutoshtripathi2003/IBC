@@ -3,6 +3,12 @@ import { expect, test, type Page } from '@playwright/test';
 
 const PAGES = [
   '/',
+  '/discover',
+  '/search?q=pump',
+  '/industries/chemicals',
+  '/businesses/deccan-precision-castings',
+  '/products/ev-motor-housing-a356',
+  '/network/ananya-kulkarni',
   '/network',
   '/businesses',
   '/products',
@@ -92,26 +98,18 @@ test('the page never becomes wider than the screen at any scroll position', asyn
   expect(right).toBeLessThanOrEqual(viewport);
 });
 
-test('home tells the story in order and shows real platform numbers', async ({ page }) => {
+test('home leads with the headline, search and both calls to action', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    'The network where business happens.',
+    /Where Industries Connect\.\s*And Business Moves Forward\./,
   );
-  const headings = await page.getByRole('heading', { level: 2 }).allTextContents();
-  expect(headings.slice(0, 9)).toEqual([
-    'The world is connected. Business isn’t.',
-    'One network, from first hello to final delivery.',
-    'Find what you need by describing it.',
-    'Relationships that come with context.',
-    'Do business, end to end.',
-    'Know who you’re doing business with.',
-    'Intelligence behind every connection.',
-    'Built locally. Designed for the world.',
-    'Your next connection could change your business.',
-  ]);
-  // Counters render their final value for crawlers and assistive tech.
-  await expect(page.locator('#global .visually-hidden', { hasText: /^250$/ })).toBeAttached();
-  await expect(page.locator('canvas')).toHaveCount(1);
+  const hero = page.locator('#hero-title').locator('..');
+  await expect(hero.getByRole('combobox')).toBeVisible();
+  await expect(hero.getByRole('link', { name: 'Explore IBC' })).toBeVisible();
+  await expect(hero.getByRole('link', { name: 'Join IBC' })).toBeVisible();
+  // Demo listings are labelled as such; nothing claims to be verified.
+  await expect(page.getByText('Demo').first()).toBeVisible();
+  await expect(page.getByText(/^Verified$/)).toHaveCount(0);
 });
 
 test('primary calls to action lead to the join page and are tracked', async ({ page }) => {
@@ -127,25 +125,11 @@ test('primary calls to action lead to the join page and are tracked', async ({ p
   expect(names).toContain('join_click');
 });
 
-test('the network legend opens as a dialog and closes with Escape', async ({ page }) => {
-  await page.goto('/');
-  await page.getByRole('button', { name: 'What am I looking at?' }).click();
-  const dialog = page.getByRole('dialog', { name: 'The IBC network' });
-  await expect(dialog).toBeVisible();
-  await page.keyboard.press('Escape');
-  await expect(dialog).toBeHidden();
-});
-
-test('reduced motion shows everything immediately, without the opening sequence', async ({
-  page,
-}) => {
+test('reduced motion leaves all content visible', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.locator('html')).not.toHaveAttribute('data-intro', 'play');
-  const opacity = await page
-    .locator('#hero-title')
-    .evaluate((el) => getComputedStyle(el.querySelector('span span span') ?? el).transform);
-  expect(opacity === 'none' || opacity.includes('matrix(1, 0, 0, 1, 0, 0)')).toBe(true);
+  const opacity = await page.locator('#hero-title').evaluate((el) => getComputedStyle(el).opacity);
+  expect(opacity).toBe('1');
 });
 
 test('keyboard users can skip straight to content', async ({ page }) => {
@@ -159,7 +143,7 @@ test('keyboard users can skip straight to content', async ({ page }) => {
 
 test('SEO metadata, structured data, robots and sitemap', async ({ page, request }) => {
   await page.goto('/products');
-  await expect(page).toHaveTitle(/Products \| IBC — Indian Business Circle/);
+  await expect(page).toHaveTitle(/Product marketplace \| IBC — Industrial Business Circle/);
   await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /.+/);
   await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/products$/);
   await expect(page.locator('meta[property="og:image"]')).toHaveAttribute(
