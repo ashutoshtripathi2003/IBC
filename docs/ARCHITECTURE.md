@@ -197,12 +197,16 @@ sandbox used to build this code is not a server and holds no production data.
 
 **CURRENT:** `apps/web`, the public website (Next.js 16, statically generated pages, standalone
 output for containers, strict security headers/CSP, vendor-neutral analytics). See
-`docs/DESIGN.md`. It does not call the API yet; Join and Log in are informational until
-accounts open.
+`docs/DESIGN.md`. Its server is also the **backend-for-frontend (BFF)** for accounts:
+route handlers under `/api/*` forward a fixed allow-list of `/v1` operations to the API
+(server to server, `IBC_API_URL`) and keep the session token in an httpOnly cookie, so
+browser JavaScript never sees it. The signed-in app (`/app/*`) is static; personal data is
+loaded after sign-in through those routes and authorized by the API. With no `IBC_API_URL`
+the site shows its pre-launch state. The build order for the remaining domains is in
+`docs/BACKEND-PLAN.md`.
 
 **TARGET:**
 
 Next.js + React + TypeScript web app; React Native mobile. Both consume `/v1` and share
-`@ibc/kernel` (kept runtime-neutral: no Node-only imports). Web will hold the session
-token server-side (BFF) in an `HttpOnly; Secure; SameSite` cookie rather than exposing it to
-browser JavaScript.
+`@ibc/kernel` (kept runtime-neutral: no Node-only imports). Web holds the session
+token server-side (BFF) in an `HttpOnly; Secure; SameSite=Lax` cookie (CURRENT, above).

@@ -43,7 +43,9 @@ multi-currency, multi-timezone from the start; English first.
 | Email verification, password reset                                                                                                               | **Built (API)**; email via Amazon SES |
 | Professional profile, organizations, network, catalog, content, messaging, RFQ/quote/order, payments, trust/verification, reputation, search, AI | Not started                           |
 | Public website: industries, businesses, products, services, network, opportunities, search (on labelled demo data), about                        | **Built** (pre-launch; demo data)     |
-| Web app (signed-in product), mobile app                                                                                                          | Not started                           |
+| Website accounts: sign up, log in/out, email confirmation, password reset, account details, device sessions                                      | **Built** (needs `IBC_API_URL`)       |
+| Signed-in app shell: dashboard, settings, profile; other sections show what is not available yet                                                 | **Built** (shell)                     |
+| Mobile app                                                                                                                                       | Not started                           |
 
 ## Open product questions
 

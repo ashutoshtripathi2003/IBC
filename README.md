@@ -17,6 +17,7 @@ cp .env.example .env
 pnpm db:migrate
 pnpm dev                    # http://localhost:3000/health/ready
 pnpm --filter @ibc/web dev  # website on http://localhost:3001
+# accounts on the website: IBC_API_URL=http://localhost:3000 pnpm --filter @ibc/web dev
 pnpm check                  # format, lint, typecheck, tests, build
 # API contract: http://localhost:3000/openapi.json (also docs/openapi.json)
 ```

@@ -87,6 +87,34 @@ before public launch.
   restrictive Permissions-Policy, COOP; no `x-powered-by`. Verified by an e2e test.
 - Fonts and assets are self-hosted; the site makes no third-party requests.
 
+### Website accounts (BFF)
+
+- The website's server forwards a **fixed allow-list** of operations (`apps/web/src/app/api`)
+  to the API; there is no generic proxy. Path parameters are validated (UUID) before they
+  reach an API URL; redirects from the API are refused; 10 s timeout.
+- **Session token never reaches browser JavaScript**: it is stored only in a cookie that is
+  `HttpOnly`, `SameSite=Lax`, `Path=/`, and in production `Secure` with the `__Host-` prefix
+  (no `Domain`, so subdomains cannot set or read it). Responses never contain the token.
+  Malformed cookie values are ignored, and a 401 from the API clears the cookie.
+- **CSRF**: every state-changing route requires `Origin` equal to the site origin and, when
+  sent, `Sec-Fetch-Site: same-origin`; bodies must be `application/json` (cross-site HTML
+  forms cannot send it) and SameSite=Lax blocks the cookie on cross-site subrequests. In
+  production `IBC_SITE_ORIGIN` is required (the origin is not inferred from headers).
+- **Bodies** are capped at 16 KiB (streamed), must be a JSON object, and are validated again
+  by the API's strict schemas.
+- **Errors**: API 5xx and network failures become a generic `502 api_unavailable`; no internal
+  details are relayed. `cache-control: no-store` on every account response.
+- **Client IP**: forwarded to the API only through `IBC_TRUSTED_PROXY_HOPS` trusted proxies
+  (default 0: not forwarded, so it cannot be spoofed). **Deployment requirement:** set the
+  website's hops to its load balancer(s) and the API's `TRUST_PROXY_HOPS` to include the
+  website, otherwise the API's per-IP limits see one address for every visitor.
+- **Open redirects**: `?next=` after sign-in accepts only same-site paths (`/…`, not `//…`).
+- **One-time links**: verification/reset tokens are read from the URL fragment and removed
+  from the address bar immediately.
+- Signed-in pages and account pages are `noindex` and disallowed in `robots.txt`.
+- Verified by unit tests (`src/server/proxy.test.ts`) and end-to-end tests against the real
+  API and PostgreSQL (`e2e/account.spec.ts`).
+
 ## Known gaps / risks (tracked)
 
 | Gap                                                                                               | Plan                                                                                                         |
@@ -104,6 +132,8 @@ before public launch.
 | Dev-only advisory: `minimatch` (via ESLint) GHSA-g3hv-75wg-m249, moderate                         | No fix within ESLint's supported range yet; not shipped in production image; Dependabot will surface the fix |
 | No secrets manager, encryption-at-rest config, key rotation                                       | Cloud decision pending                                                                                       |
 | GitHub Actions pinned by major tag, not SHA                                                       | Pin to SHAs before org-wide rollout                                                                          |
+| Website CSP allows `'unsafe-inline'` scripts (static pages)                                       | Nonce-based CSP once pages are rendered per request                                                          |
+| Registration records no acceptance of terms/privacy policy                                        | Terms and privacy policy needed before public sign-up (founder/legal)                                        |
 
 ## Rules (non-negotiable)
 

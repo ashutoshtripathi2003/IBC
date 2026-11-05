@@ -27,6 +27,19 @@ pnpm --filter @ibc/api dev:worker    # events + email delivery (emails are print
 Without Docker, any PostgreSQL 16 works: create role `ibc` and databases `ibc` and
 `ibc_test`, then set `DATABASE_URL` / `TEST_DATABASE_URL`.
 
+### Website account settings (server-only)
+
+| Variable                 | Meaning                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| `IBC_API_URL`            | API origin for server-to-server calls (e.g. `http://localhost:3000`). Unset = accounts off |
+| `IBC_SITE_ORIGIN`        | The website's public origin; **required in production** for the CSRF origin check          |
+| `IBC_TRUSTED_PROXY_HOPS` | Proxies in front of the website trusted for `X-Forwarded-For` (default 0 = none)           |
+
+Local: run the API (`pnpm dev`), then `IBC_API_URL=http://localhost:3000 pnpm --filter
+@ibc/web dev`. Website end-to-end tests start the API themselves against the
+`ibc_e2e_test` database (created by `infra/local/postgres-init.sql`; override with
+`E2E_DATABASE_URL`).
+
 ## Quality gates (`pnpm check`)
 
 `format:check` (Prettier) → `lint` (ESLint, typescript-eslint strict type-checked, zero
@@ -103,27 +116,28 @@ Next.js/React Native, Turborepo. Each will be added when the feature that needs 
 
 ## Decisions log
 
-| #   | Decision                                                                                                                                          | Status                                                                   |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| D1  | pnpm workspace monorepo (`apps/*`, `packages/*`)                                                                                                  | Adopted                                                                  |
-| D2  | Modular service with schema-per-domain and enforced boundaries (see ARCHITECTURE §3)                                                              | Adopted — **founder review requested**                                   |
-| D3  | Fastify + raw SQL (`pg`) + zod; no ORM                                                                                                            | Adopted                                                                  |
-| D4  | UUIDv7 application-generated IDs                                                                                                                  | Adopted                                                                  |
-| D5  | Opaque server-side sessions (not JWT) for first-party clients                                                                                     | Adopted — revocable, no key management; OIDC/JWT for third parties later |
-| D6  | scrypt for password hashing (built-in, cross-platform); argon2id migration path via rehash                                                        | Adopted                                                                  |
-| D7  | Transactional outbox + relay worker; Kafka publisher later                                                                                        | Adopted                                                                  |
-| D8  | Forward-only, checksummed SQL migrations with an in-house runner (~100 lines)                                                                     | Adopted — avoids a dependency; revisit if needs grow                     |
-| D9  | Cloud: AWS, first region Mumbai `ap-south-1`                                                                                                      | Approved by founder                                                      |
-| D10 | Transactional email: Amazon SES (ap-south-1) behind an `EmailTransport` interface; emails queued in a DB outbox                                   | Adopted (follows D9) — provider swappable                                |
-| D11 | One-time links carry tokens in the URL fragment; tokens single-use, hashed at rest                                                                | Adopted                                                                  |
-| D12 | Compute: ECS on Fargate                                                                                                                           | Approved by founder                                                      |
-| D13 | Database: RDS for PostgreSQL                                                                                                                      | Approved by founder                                                      |
-| D14 | OpenAPI 3.1 generated from zod schemas (no hand-written spec); committed copy with drift test                                                     | Adopted                                                                  |
-| D15 | OpenTelemetry tracing via a `--import` preload, enabled by standard `OTEL_*` env; OTLP to an ADOT sidecar on AWS                                  | Adopted                                                                  |
-| D16 | Website: Next.js App Router, statically generated, CSS Modules + design tokens (no CSS framework)                                                 | Adopted                                                                  |
-| D17 | Network visual in Canvas 2D (pseudo-3D), not WebGL/Three.js                                                                                       | Adopted — performance and graceful degradation                           |
-| D18 | The website consumes `@ibc/kernel` (Money, globalization) — same rules as the API                                                                 |
-| D19 | Website redesign: light enterprise UI (navy/gold), IBM Plex Sans, typed demo catalogue + client-side search until the catalogue/search APIs exist | Adopted (founder brief)                                                  | Adopted |
+| #   | Decision                                                                                                                                                             | Status                                                                   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| D1  | pnpm workspace monorepo (`apps/*`, `packages/*`)                                                                                                                     | Adopted                                                                  |
+| D2  | Modular service with schema-per-domain and enforced boundaries (see ARCHITECTURE §3)                                                                                 | Adopted — **founder review requested**                                   |
+| D3  | Fastify + raw SQL (`pg`) + zod; no ORM                                                                                                                               | Adopted                                                                  |
+| D4  | UUIDv7 application-generated IDs                                                                                                                                     | Adopted                                                                  |
+| D5  | Opaque server-side sessions (not JWT) for first-party clients                                                                                                        | Adopted — revocable, no key management; OIDC/JWT for third parties later |
+| D6  | scrypt for password hashing (built-in, cross-platform); argon2id migration path via rehash                                                                           | Adopted                                                                  |
+| D7  | Transactional outbox + relay worker; Kafka publisher later                                                                                                           | Adopted                                                                  |
+| D8  | Forward-only, checksummed SQL migrations with an in-house runner (~100 lines)                                                                                        | Adopted — avoids a dependency; revisit if needs grow                     |
+| D9  | Cloud: AWS, first region Mumbai `ap-south-1`                                                                                                                         | Approved by founder                                                      |
+| D10 | Transactional email: Amazon SES (ap-south-1) behind an `EmailTransport` interface; emails queued in a DB outbox                                                      | Adopted (follows D9) — provider swappable                                |
+| D11 | One-time links carry tokens in the URL fragment; tokens single-use, hashed at rest                                                                                   | Adopted                                                                  |
+| D12 | Compute: ECS on Fargate                                                                                                                                              | Approved by founder                                                      |
+| D13 | Database: RDS for PostgreSQL                                                                                                                                         | Approved by founder                                                      |
+| D14 | OpenAPI 3.1 generated from zod schemas (no hand-written spec); committed copy with drift test                                                                        | Adopted                                                                  |
+| D15 | OpenTelemetry tracing via a `--import` preload, enabled by standard `OTEL_*` env; OTLP to an ADOT sidecar on AWS                                                     | Adopted                                                                  |
+| D16 | Website: Next.js App Router, statically generated, CSS Modules + design tokens (no CSS framework)                                                                    | Adopted                                                                  |
+| D17 | Network visual in Canvas 2D (pseudo-3D), not WebGL/Three.js                                                                                                          | Adopted — performance and graceful degradation                           |
+| D18 | The website consumes `@ibc/kernel` (Money, globalization) — same rules as the API                                                                                    |
+| D19 | Website redesign: light enterprise UI (navy/gold), IBM Plex Sans, typed demo catalogue + client-side search until the catalogue/search APIs exist                    | Adopted (founder brief)                                                  | Adopted |
+| D20 | Website accounts through a BFF (Next.js route handlers, httpOnly `__Host-` cookie, fixed operation allow-list); signed-in app is static and loads data after sign-in | Adopted (ARCHITECTURE §9 TARGET)                                         |
 
 ## Open questions for the founder
 

@@ -47,6 +47,21 @@ People and companies are separate entities; a person can hold several roles (com
 other organisation). The signed-in app shell (Dashboard, My Network, RFQs, Messages,
 Notifications, Profile, Settings) is a separate, later stage.
 
+## Accounts and the signed-in app
+
+Join and Log in show real forms when accounts are available (the server has `IBC_API_URL`),
+otherwise the pre-launch message (also what renders without JavaScript). Forms use visible
+labels, inline field errors from the API's `errors[]`, plain-language messages for each error
+code, and a show/hide password toggle. Recovery pages: `/forgot-password`, `/reset-password`,
+`/verify-email` (tokens read from the URL fragment).
+
+`/app` is the signed-in workspace: a top bar (brand, member, Log out) and a sidebar
+(Dashboard, My Network, Discover, Businesses, Products, RFQs, Messages, Opportunities,
+Notifications, My Profile, Settings) that becomes a scrolling tab strip on phones. Settings
+(account details, email confirmation, devices/sessions) and the dashboard work today; the
+other sections state plainly what will be there and link to the public directory — no
+invented data.
+
 ## Data and search
 
 - `src/content/catalog/` holds typed **demo** records (industries, companies, products,
@@ -135,7 +150,7 @@ Artifact), build a self-contained copy of the home page:
 
 ```sh
 cd apps/web
-IBC_STATIC_EXPORT=1 npx next build --webpack
+pnpm build:export                # static export; account endpoints are left out
 node scripts/build-preview.mjs   # writes out/preview.html (~1 MB, no network requests)
 ```
 
