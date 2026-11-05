@@ -32,7 +32,7 @@ use the site; close the window to stop it.
 
 | Path              | Contents                                                                                                                                                                                  |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`        | Public website (Next.js): industries, businesses, products, network, search                                                                                                               |
+| `apps/web`        | Public website (Next.js): cinematic homepage story, industries, businesses, products, network, search, accounts                                                                           |
 | `apps/api`        | Platform API service, outbox worker, migrations                                                                                                                                           |
 | `packages/kernel` | Shared primitives: UUIDv7, Money, globalization                                                                                                                                           |
 | `docs/`           | [Architecture](docs/ARCHITECTURE.md) · [Database](docs/DATABASE.md) · [API](docs/API.md) · [Security](docs/SECURITY.md) · [Engineering](docs/ENGINEERING.md) · [Product](docs/PRODUCT.md) |

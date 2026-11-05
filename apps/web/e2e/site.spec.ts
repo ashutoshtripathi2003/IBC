@@ -99,18 +99,63 @@ test('the page never becomes wider than the screen at any scroll position', asyn
   expect(right).toBeLessThanOrEqual(viewport);
 });
 
-test('home leads with the headline, search and both calls to action', async ({ page }) => {
+test('home tells the story in order, ending in a way to start', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-    /Where Industries Connect\.\s*And Business Moves Forward\./,
+    /The world\s*runs on\s*industry\./i,
   );
   const hero = page.locator('#hero-title').locator('..');
-  await expect(hero.getByRole('combobox')).toBeVisible();
   await expect(hero.getByRole('link', { name: 'Explore IBC' })).toBeVisible();
   await expect(hero.getByRole('link', { name: 'Join IBC' })).toBeVisible();
-  // Demo listings are labelled as such; nothing claims to be verified.
-  await expect(page.getByText('Demo').first()).toBeVisible();
+  const scenes = await page
+    .locator('main section[data-tone]')
+    .evaluateAll((els) => els.map((e) => e.id));
+  expect(scenes).toEqual([
+    '',
+    'connections',
+    'industries',
+    'people',
+    'ecosystem',
+    'marketplace',
+    'discover',
+    'join',
+  ]);
+  // All fifteen industry chapters, each linking to its page.
+  await expect(page.locator('#industries article h3')).toHaveCount(15);
+  // Search is part of the page, and demo content is labelled; nothing claims verification.
+  await expect(page.locator('#discover').getByRole('combobox')).toBeAttached();
+  await expect(page.getByText('Demo').first()).toBeAttached();
   await expect(page.getByText(/^Verified$/)).toHaveCount(0);
+  await expect(page.getByText('Rendered illustration').first()).toBeAttached();
+});
+
+test('the marketplace showcase switches products with mouse and keyboard', async ({ page }) => {
+  await page.goto('/#marketplace');
+  const tabs = page.getByRole('tablist', { name: 'Featured products' });
+  await tabs.getByRole('tab', { name: /Isopropyl alcohol/ }).click();
+  const panel = page.getByRole('tabpanel');
+  await expect(panel.getByRole('heading', { name: /Isopropyl alcohol/ })).toBeVisible();
+  await tabs.getByRole('tab', { name: /Isopropyl alcohol/ }).press('ArrowDown');
+  await expect(tabs.getByRole('tab', { name: /EV motor housing/ })).toBeFocused();
+  await expect(panel.getByRole('heading', { name: /EV motor housing/ })).toBeVisible();
+  await expect(panel.getByRole('link', { name: 'Request quotation' })).toHaveAttribute(
+    'href',
+    '/join?intent=rfq&product=ev-motor-housing-a356',
+  );
+});
+
+test('the globe loads WebGL lazily and keeps its poster without it', async ({ page }) => {
+  await page.goto('/');
+  // Nothing heavy before the scene is near.
+  const early = await page.evaluate(() =>
+    performance.getEntriesByType('resource').some((r) => r.name.includes('land-dots.bin')),
+  );
+  expect(early).toBe(false);
+  await page.locator('#connections').scrollIntoViewIfNeeded();
+  await expect(page.locator('#connections svg').first()).toBeAttached();
+  await expect(page.locator('#connections')).toHaveAttribute('data-globe', 'ready', {
+    timeout: 15_000,
+  });
 });
 
 test('primary calls to action lead to the join page and are tracked', async ({ page }) => {
@@ -120,6 +165,7 @@ test('primary calls to action lead to the join page and are tracked', async ({ p
     .poll(async () => (await events(page)).some((e) => e.name === 'page_view'))
     .toBe(true);
   const join = page.locator('#hero-title').locator('..').getByRole('link', { name: 'Join IBC' });
+  await expect(join).toBeVisible();
   await join.click();
   await expect(page).toHaveURL(/\/join$/);
   const names = (await events(page)).map((e) => e.name);

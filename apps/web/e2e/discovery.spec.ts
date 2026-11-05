@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 
 test('hero search suggests as you type and opens the chosen result', async ({ page }) => {
-  await page.goto('/');
-  const box = page.locator('#hero-title').locator('..').getByRole('combobox');
+  await page.goto('/#discover');
+  const box = page.locator('#discover').getByRole('combobox');
   await box.fill('alum');
   const listbox = page.getByRole('listbox', { name: 'Suggestions' });
   await expect(listbox).toBeVisible();
