@@ -129,6 +129,26 @@ test('home tells the story in order, ending in a way to start', async ({ page })
   await expect(page.getByText('Rendered illustration').first()).toBeAttached();
 });
 
+test('Explore IBC takes the visitor straight to discovery', async ({ page }) => {
+  await page.goto('/');
+  await page
+    .locator('#hero-title')
+    .locator('..')
+    .getByRole('link', { name: 'Explore IBC' })
+    .click();
+  await expect(page).toHaveURL(/#discover$/);
+  await expect
+    .poll(
+      () =>
+        page.evaluate(() =>
+          Math.round(document.getElementById('discover')!.getBoundingClientRect().top),
+        ),
+      { timeout: 8000 },
+    )
+    .toBeLessThan(200);
+  await expect(page.locator('#discover').getByRole('combobox')).toBeInViewport();
+});
+
 test('the marketplace showcase switches products with mouse and keyboard', async ({ page }) => {
   await page.goto('/#marketplace');
   const tabs = page.getByRole('tablist', { name: 'Featured products' });
