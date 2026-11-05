@@ -68,6 +68,9 @@ export function Footer() {
           </div>
         </nav>
       </div>
+      <p className={styles.wordmark} aria-hidden="true">
+        Industrial Business Circle
+      </p>
       <div className={styles.base}>
         <p>
           © {year} {site.legalName}
