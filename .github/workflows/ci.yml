@@ -71,6 +71,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: verify
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ibc
+          POSTGRES_PASSWORD: ibc_ci_password
+          POSTGRES_DB: ibc_e2e_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ibc -d ibc_e2e_test"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      # The tests start the real API against this database, behind the website.
+      E2E_DATABASE_URL: postgres://ibc:ibc_ci_password@localhost:5432/ibc_e2e_test
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

@@ -17,6 +17,7 @@ const PAGES = [
   '/about',
   '/join',
   '/login',
+  '/forgot-password',
 ];
 
 /** Collects console errors and failed requests, ignoring prefetches of not-yet-built routes. */
