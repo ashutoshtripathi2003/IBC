@@ -21,6 +21,12 @@ pnpm check                  # format, lint, typecheck, tests, build
 # API contract: http://localhost:3000/openapi.json (also docs/openapi.json)
 ```
 
+### Windows: start the website with a double-click
+
+Double-click `start-website.bat` in the project folder. It installs what is needed, starts
+the website and opens http://localhost:3001 in your browser. Keep its window open while you
+use the site; close the window to stop it.
+
 ## Repository
 
 | Path              | Contents                                                                                                                                                                                  |
