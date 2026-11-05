@@ -1,11 +1,9 @@
-import '@fontsource-variable/schibsted-grotesk';
+import '@fontsource-variable/ibm-plex-sans';
 import '@/styles/globals.css';
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { AnalyticsBoot } from '@/components/layout/AnalyticsBoot';
-import { Cursor } from '@/components/layout/Cursor';
 import { Footer } from '@/components/layout/Footer';
-import { Intro, INTRO_SCRIPT } from '@/components/layout/Intro';
 import { Navbar } from '@/components/layout/Navbar';
 import { site } from '@/content/site';
 import { organizationJsonLd } from '@/lib/seo';
@@ -31,18 +29,16 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0f2e',
-  colorScheme: 'dark',
+  themeColor: '#10243e',
+  colorScheme: 'light',
   width: 'device-width',
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <head>
-        {/* Decides before first paint whether the opening sequence plays (once per session). */}
-        <script dangerouslySetInnerHTML={{ __html: INTRO_SCRIPT }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
@@ -52,11 +48,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a href="#main" className="skip-link">
           Skip to content
         </a>
-        <Intro />
         <Navbar />
         <main id="main">{children}</main>
         <Footer />
-        <Cursor />
         <AnalyticsBoot />
       </body>
     </html>

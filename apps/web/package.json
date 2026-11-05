@@ -18,7 +18,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@fontsource-variable/schibsted-grotesk": "^5.3.0",
+    "@fontsource-variable/ibm-plex-sans": "^5.3.0",
     "@ibc/kernel": "workspace:*",
     "motion": "14.9.0",
     "next": "16.4.3",

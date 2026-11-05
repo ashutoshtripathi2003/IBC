@@ -1,32 +1,43 @@
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35em;
-  font-size: var(--text-meta);
-  font-weight: 600;
-  line-height: 1;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .verified {
-  color: var(--color-trust);
+  background: var(--success-100);
+  color: var(--success);
+}
+
+.demo {
+  border: 1px dashed var(--border-strong);
+  color: var(--muted);
 }
 
 .neutral {
-  color: var(--color-text-muted);
+  background: var(--surface-muted);
+  color: var(--graphite);
 }
 
-.action {
-  color: var(--color-action);
+.gold {
+  background: var(--gold-100);
+  color: var(--gold-text);
 }
 
 .tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-chip);
-  color: var(--color-text-muted);
-  font-size: var(--text-meta);
-  line-height: 1.2;
-  white-space: nowrap;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--graphite);
+  font-size: var(--text-xs);
+  line-height: 1.3;
 }

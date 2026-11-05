@@ -7,27 +7,23 @@
 }
 
 html {
-  /* Defense in depth: mobile browsers widen the layout viewport if anything overflows,
-     even briefly. Clipping on the root (propagated to the viewport) prevents that and
-     does not break position: sticky. */
+  /* Defense in depth: mobile browsers widen the layout viewport if anything overflows. */
   overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  scroll-padding-top: var(--nav-height);
+  scroll-padding-top: calc(var(--header-height) + var(--space-4));
 }
 
 body {
   margin: 0;
   min-height: 100dvh;
-  background: var(--color-bg);
-  color: var(--color-text);
+  background: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
-  font-size: var(--text-body);
+  font-size: var(--text-md);
   line-height: var(--leading-body);
-  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: clip;
 }
 
 h1,
@@ -37,9 +33,22 @@ h4,
 p,
 figure,
 blockquote,
+dl,
+dd,
 ul,
 ol {
   margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-strong);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 ul[role='list'],
@@ -60,26 +69,27 @@ canvas {
   max-width: 100%;
 }
 
-button {
+button,
+input,
+select,
+textarea {
   font: inherit;
   color: inherit;
 }
 
 ::selection {
-  background: var(--marigold);
-  color: var(--color-on-action);
+  background: var(--gold-100);
+  color: var(--navy-900);
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-focus);
-  outline-offset: 3px;
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
   border-radius: 4px;
 }
 
 .visually-hidden {
   position: absolute !important;
-  /* Pin to the inline start: left at its static position, hidden text inside long
-     single-line content could otherwise extend the page width on phones. */
   inset-inline-start: 0;
   width: 1px;
   height: 1px;
@@ -95,17 +105,35 @@ button {
   position: fixed;
   top: var(--space-3);
   left: var(--space-3);
-  z-index: calc(var(--z-cursor) + 1);
+  z-index: calc(var(--z-modal) + 1);
   padding: var(--space-3) var(--space-4);
-  background: var(--color-action);
-  color: var(--color-on-action);
-  border-radius: var(--radius-control);
-  font-weight: 600;
+  background: var(--navy-900);
+  color: var(--white);
+  border-radius: var(--radius-sm);
+  font-weight: var(--weight-semibold);
   transform: translateY(-200%);
 }
 
 .skip-link:focus-visible {
   transform: none;
+}
+
+/* Subtle reveal for content as it enters; content is visible without JavaScript. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+  }
+}
+
+@keyframes reveal {
+  from {
+    opacity: 0.001;
+    transform: translateY(12px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

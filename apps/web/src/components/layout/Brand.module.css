@@ -1,0 +1,26 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.brand img {
+  width: 84px;
+  height: 40px;
+}
+
+.name {
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--border-strong);
+  color: var(--navy-900);
+  font-size: 0.72rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.light .name {
+  border-left-color: rgb(255 255 255 / 25%);
+  color: var(--white);
+}

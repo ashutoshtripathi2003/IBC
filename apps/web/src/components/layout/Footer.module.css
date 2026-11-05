@@ -1,17 +1,16 @@
 .footer {
-  position: relative;
-  z-index: var(--z-content);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg);
+  margin-top: var(--space-10);
+  background: var(--navy-900);
+  color: #c9d2de;
 }
 
 .inner {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
-  gap: var(--space-8);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr);
+  gap: var(--space-9);
   max-width: var(--container);
   margin-inline: auto;
-  padding: var(--space-8) var(--gutter) var(--space-7);
+  padding: var(--space-9) var(--gutter) var(--space-8);
 }
 
 .brand {
@@ -22,20 +21,25 @@
 
 .tagline {
   max-width: 22rem;
-  color: var(--color-text-muted);
+}
+
+.motto {
+  color: var(--gold-400);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
 }
 
 .columns {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-6);
+  gap: var(--space-7);
 }
 
 .heading {
-  margin-bottom: var(--space-3);
-  color: var(--color-text-subtle);
-  font-size: var(--text-meta);
-  font-weight: 600;
+  margin-bottom: var(--space-4);
+  color: var(--white);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
 }
 
 .columns ul {
@@ -44,12 +48,13 @@
 }
 
 .link {
-  color: var(--color-text-muted);
-  transition: color var(--duration-fast) var(--ease-out);
+  color: #c9d2de;
+  font-size: var(--text-sm);
+  transition: color var(--duration-fast);
 }
 
 .link:hover {
-  color: var(--color-text);
+  color: var(--white);
 }
 
 .base {
@@ -60,12 +65,12 @@
   max-width: var(--container);
   margin-inline: auto;
   padding: var(--space-5) var(--gutter) var(--space-6);
-  border-top: 1px solid var(--color-border);
-  color: var(--color-text-subtle);
-  font-size: var(--text-meta);
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  color: #9fabbb;
+  font-size: var(--text-xs);
 }
 
-@media (max-width: 767px) {
+@media (max-width: 860px) {
   .inner {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-7);

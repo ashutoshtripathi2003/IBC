@@ -1,0 +1,150 @@
+.demoNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.demoNotice svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--gold-600);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border-top: 2px solid var(--gold-500);
+  background: var(--surface);
+}
+
+.stepIcon {
+  color: var(--navy-900);
+}
+
+.stepNo {
+  color: var(--gold-text);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.stepTitle {
+  font-size: var(--text-lg);
+}
+
+.stepText,
+.trustText {
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+.trust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-6);
+}
+
+.trustPoint {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.trustIcon {
+  color: var(--gold-400);
+}
+
+.trustTitle {
+  color: var(--white);
+  font-size: var(--text-lg);
+}
+
+.trustText {
+  color: #c2cbd8;
+}
+
+.join {
+  padding: var(--space-9) var(--gutter);
+}
+
+.joinInner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-6);
+  max-width: calc(var(--container) - 2 * var(--gutter));
+  margin-inline: auto;
+  padding: var(--space-8);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.joinInner > div:first-child {
+  max-width: 40rem;
+}
+
+.joinTitle {
+  font-size: var(--text-2xl);
+}
+
+.joinText {
+  margin-top: var(--space-2);
+  color: var(--muted);
+}
+
+.joinActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.joinLink {
+  color: var(--link);
+  font-weight: var(--weight-semibold);
+}
+
+.joinLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 1023px) {
+  .steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .trust {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 639px) {
+  .steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .joinInner {
+    padding: var(--space-6);
+  }
+}

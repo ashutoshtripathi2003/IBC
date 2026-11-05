@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { industries } from '@/content/catalog';
 import { accountLinks, primaryNav, site } from '@/content/site';
-import { Logo } from './Logo';
+import { Brand } from './Brand';
 import styles from './Footer.module.css';
 
 export function Footer() {
@@ -9,8 +10,9 @@ export function Footer() {
     <footer className={styles.footer}>
       <div className={styles.inner}>
         <div className={styles.brand}>
-          <Logo withName />
+          <Brand tone="light" />
           <p className={styles.tagline}>{site.tagline}.</p>
+          <p className={styles.motto}>{site.motto}</p>
         </div>
         <nav aria-label="Footer" className={styles.columns}>
           <div>
@@ -28,6 +30,23 @@ export function Footer() {
             </ul>
           </div>
           <div>
+            <h2 className={styles.heading}>Industries</h2>
+            <ul role="list">
+              {industries.slice(0, 7).map((industry) => (
+                <li key={industry.slug}>
+                  <Link href={`/industries/${industry.slug}`} className={styles.link}>
+                    {industry.name}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/discover" className={styles.link}>
+                  All industries
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
             <h2 className={styles.heading}>Company</h2>
             <ul role="list">
               <li>
@@ -35,11 +54,6 @@ export function Footer() {
                   About IBC
                 </Link>
               </li>
-            </ul>
-          </div>
-          <div>
-            <h2 className={styles.heading}>Account</h2>
-            <ul role="list">
               <li>
                 <Link href={accountLinks.join.href} className={styles.link}>
                   {accountLinks.join.label}
@@ -56,9 +70,9 @@ export function Footer() {
       </div>
       <div className={styles.base}>
         <p>
-          © {year} {site.fullName}
+          © {year} {site.legalName}
         </p>
-        <p>Built in Maharashtra, for the world.</p>
+        <p>Listings marked Demo are fictional examples.</p>
       </div>
     </footer>
   );

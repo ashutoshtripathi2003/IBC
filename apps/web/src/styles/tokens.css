@@ -1,105 +1,116 @@
 /*
- * IBC design tokens. Every colour, size, duration and easing in the site comes from here.
- * Colour roles encode meaning: periwinkle = people, marigold = commerce/action,
- * jade = trust/verification, rose = opportunity, chalk = companies/text.
+ * IBC (Industrial Business Circle) design tokens.
+ * Light interface for discovery and accounts; deep navy and industrial gold are used
+ * selectively for brand moments. Every colour, size and duration comes from here.
  */
 :root {
-  /* Base palette */
-  --indigo-950: #0a0f2e;
-  --indigo-900: #0f1640;
-  --indigo-800: #141b4a;
-  --indigo-700: #1d2663;
-  --indigo-600: #2a3482;
-  --indigo-400: #5664c9;
-  --periwinkle: #8c9bff;
-  --marigold: #f4a62a;
-  --marigold-strong: #ffb547;
-  --jade: #39c2a0;
-  --rose: #ff7a90;
-  --chalk: #eef0fa;
-  --mist: #a9b1dc;
-  --haze: #8790c4; /* ≥ 4.5:1 on every background surface (WCAG AA) */
+  /* Brand palette */
+  --navy-950: #0b1a2e;
+  --navy-900: #10243e; /* Deep Navy (primary brand) */
+  --navy-800: #183356;
+  --navy-700: #22446e;
+  --navy-100: #e8edf4;
+  --gold-600: #a8822f;
+  --gold-500: #c49a42; /* Industrial Gold */
+  --gold-400: #d4b06a;
+  --gold-100: #f6efe0;
+  --gold-text: #7d5f1f; /* gold for text on light surfaces (≥ 4.5:1 on white) */
+  --white: #ffffff;
+  --warm-white: #f7f8fa;
+  --graphite: #303846;
+  --muted: #5f6b7b; /* ≥ 4.5:1 on white and warm white */
+  --border: #e5e9ef;
+  --border-strong: #cfd6e0;
+  --success: #1f7a4d;
+  --success-100: #e4f3ea;
+  --danger: #b4232f;
 
   /* Semantic roles */
-  --color-bg: var(--indigo-950);
-  --color-bg-raised: var(--indigo-900);
-  --color-surface: var(--indigo-800);
-  --color-surface-strong: var(--indigo-700);
-  --color-border: rgb(140 155 255 / 16%);
-  --color-border-strong: rgb(140 155 255 / 34%);
-  --color-text: var(--chalk);
-  --color-text-muted: var(--mist);
-  --color-text-subtle: var(--haze);
-  --color-action: var(--marigold);
-  --color-action-hover: var(--marigold-strong);
-  --color-on-action: #1a1205;
-  --color-link: var(--periwinkle);
-  --color-focus: var(--marigold);
-  --color-trust: var(--jade);
-  --color-danger: #ff6b6b;
+  --bg: var(--warm-white);
+  --surface: var(--white);
+  --surface-muted: #f1f3f6;
+  --text: var(--graphite);
+  --text-strong: var(--navy-900);
+  --text-muted: var(--muted);
+  --link: var(--navy-700);
+  --action: var(--navy-900);
+  --action-hover: var(--navy-800);
+  --on-action: var(--white);
+  --accent: var(--gold-500);
+  --accent-hover: var(--gold-400);
+  --on-accent: var(--navy-950);
+  --focus: var(--gold-500);
+  --verified: var(--success);
 
-  /* Network node kinds */
-  --node-person: var(--periwinkle);
-  --node-company: var(--chalk);
-  --node-product: var(--marigold);
-  --node-service: #c9a8ff;
-  --node-opportunity: var(--rose);
-
-  /* Type: one family, a modular scale (~1.25 body, larger steps for display) */
+  /* Type: IBM Plex Sans, a restrained scale */
   --font-sans:
-    'Schibsted Grotesk Variable', 'Schibsted Grotesk', system-ui, -apple-system, 'Segoe UI',
+    'IBM Plex Sans Variable', 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
-  --text-meta: 0.8125rem;
-  --text-label: 0.9375rem;
-  --text-body: 1.0625rem;
-  --text-lead: clamp(1.1875rem, 1.05rem + 0.5vw, 1.4375rem);
-  --text-subheadline: clamp(1.375rem, 1.15rem + 0.9vw, 1.875rem);
-  --text-headline: clamp(2.125rem, 1.4rem + 3vw, 4rem);
-  --text-display: clamp(2.75rem, 1.5rem + 5.6vw, 7.25rem);
-  --leading-tight: 0.94;
-  --leading-snug: 1.12;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: clamp(1.375rem, 1.2rem + 0.6vw, 1.625rem);
+  --text-3xl: clamp(1.75rem, 1.4rem + 1.2vw, 2.25rem);
+  --text-4xl: clamp(2.125rem, 1.5rem + 2.4vw, 3.25rem);
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 680;
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
   --leading-body: 1.6;
-  --tracking-display: -0.045em;
-  --tracking-headline: -0.03em;
 
   /* Space (4px base) */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4.5rem;
-  --space-9: 7rem;
-  --space-10: 10rem;
-  --gutter: clamp(1.25rem, 0.6rem + 3vw, 3.5rem);
-  --container: 84rem;
-  --measure: 34rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+  --space-8: 2.5rem;
+  --space-9: 3.5rem;
+  --space-10: 5rem;
+  --gutter: max(16px, min(4vw, 2rem));
+  --container: 80rem;
+  --measure: 40rem;
 
-  /* Shape: radii vary by role; most surfaces are sharp-edged threads, controls are pills */
-  --radius-control: 999px;
-  --radius-panel: 1.25rem;
-  --radius-chip: 0.5rem;
+  /* Shape and elevation: borders first, soft shadows only for floating layers */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(16 36 62 / 6%);
+  --shadow-md: 0 4px 16px rgb(16 36 62 / 8%);
+  --shadow-lg: 0 16px 40px rgb(16 36 62 / 14%);
 
   /* Motion */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --duration-fast: 160ms;
-  --duration-base: 320ms;
-  --duration-slow: 720ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 360ms;
 
   /* Layers */
-  --z-canvas: 0;
-  --z-content: 1;
-  --z-nav: 50;
-  --z-menu: 60;
+  --z-header: 50;
+  --z-dropdown: 60;
+  --z-menu: 70;
   --z-modal: 80;
-  --z-intro: 90;
-  --z-cursor: 100;
 
-  --nav-height: 4.5rem;
-  color-scheme: dark;
+  /* Network visual (brand panel on navy): knots, threads and shuttles */
+  --node-person: #a9bad3;
+  --node-company: #ffffff;
+  --node-product: #d4b06a;
+  --node-service: #8fa6c4;
+  --node-opportunity: #c49a42;
+  --periwinkle: #8fa3c0; /* thread colour read by the network renderer */
+  --marigold: #c49a42; /* shuttle colour */
+  --chalk: #ffffff;
+  --jade: #3fae7a;
+
+  --header-height: 4.25rem;
+  color-scheme: light;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,99 +1,87 @@
 .button {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  overflow: hidden;
   border: 1px solid transparent;
-  border-radius: var(--radius-control);
-  font-weight: 600;
-  letter-spacing: -0.005em;
+  border-radius: var(--radius-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  isolation: isolate;
   transition:
     background-color var(--duration-base) var(--ease-out),
     border-color var(--duration-base) var(--ease-out),
-    color var(--duration-base) var(--ease-out);
+    color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
+}
+
+.sm {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
 }
 
 .md {
   min-height: 2.75rem;
   padding: 0 var(--space-5);
-  font-size: var(--text-label);
+  font-size: var(--text-sm);
 }
 
 .lg {
-  min-height: 3.5rem;
+  min-height: 3.25rem;
   padding: 0 var(--space-6);
-  font-size: var(--text-body);
+  font-size: var(--text-md);
 }
 
-.label {
-  position: relative;
-  z-index: 1;
+.full {
+  width: 100%;
 }
 
 .primary {
-  background: var(--color-action);
-  color: var(--color-on-action);
+  background: var(--action);
+  color: var(--on-action);
 }
 
 .primary:hover {
-  background: var(--color-action-hover);
+  background: var(--action-hover);
 }
 
-/* A slow band of light crosses the primary button on hover. */
-.sheen {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(105deg, transparent 30%, rgb(255 255 255 / 35%) 50%, transparent 70%);
-  transform: translateX(-120%);
-  transition: transform var(--duration-slow) var(--ease-out);
-  pointer-events: none;
+.accent {
+  background: var(--accent);
+  color: var(--on-accent);
 }
 
-.button:hover .sheen {
-  transform: translateX(120%);
+.accent:hover {
+  background: var(--accent-hover);
 }
 
 .secondary {
-  border-color: var(--color-border-strong);
-  background: rgb(10 15 46 / 40%);
-  color: var(--color-text);
-  backdrop-filter: blur(6px);
-}
-
-.secondary .sheen {
-  background: linear-gradient(105deg, transparent 30%, rgb(140 155 255 / 22%) 50%, transparent 70%);
+  border-color: var(--border-strong);
+  background: var(--surface);
+  color: var(--text-strong);
 }
 
 .secondary:hover {
-  border-color: var(--periwinkle);
+  border-color: var(--navy-700);
+  box-shadow: var(--shadow-sm);
 }
 
-.quiet {
-  min-height: auto;
-  padding: 0;
-  border-radius: 0;
-  color: var(--color-text);
-  font-weight: 500;
+.ghost {
+  background: transparent;
+  color: var(--text-strong);
 }
 
-/* Underline draws in from the left. */
-.quiet .label {
-  background: linear-gradient(currentcolor, currentcolor) 0 100% / 0 1px no-repeat;
-  transition: background-size var(--duration-base) var(--ease-out);
-}
-
-.quiet:hover .label,
-.quiet:focus-visible .label {
-  background-size: 100% 1px;
+.ghost:hover {
+  background: var(--surface-muted);
 }
 
 .button:active {
   transform: translateY(1px);
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }

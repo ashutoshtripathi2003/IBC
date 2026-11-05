@@ -1,17 +1,22 @@
+import styles from '@/components/explore/detail.module.css';
+import { PageBody, PageHeader } from '@/components/explore/PageHeader';
 import { Button } from '@/components/ui/Button';
-import styles from '@/components/pages/pages.module.css';
 
 export default function NotFound() {
   return (
-    <section className={styles.account} aria-labelledby="nf-title">
-      <p className={styles.kicker}>Page not found</p>
-      <h1 id="nf-title" className={styles.headline}>
-        This thread doesn’t lead anywhere.
-      </h1>
-      <p className={styles.lede}>The page may have moved, or the link may be mistyped.</p>
-      <Button href="/" size="lg">
-        Go to the home page
-      </Button>
-    </section>
+    <>
+      <PageHeader
+        title="Page not found"
+        intro="The page may have moved, or the link may be mistyped."
+      />
+      <PageBody>
+        <div className={styles.actions}>
+          <Button href="/">Go to the home page</Button>
+          <Button href="/search" variant="secondary">
+            Search IBC
+          </Button>
+        </div>
+      </PageBody>
+    </>
   );
 }

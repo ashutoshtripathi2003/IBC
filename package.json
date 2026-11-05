@@ -1,7 +1,7 @@
 {
   "name": "ibc",
   "private": true,
-  "description": "IBC — Indian Business Circle platform monorepo",
+  "description": "IBC — Industrial Business Circle platform monorepo",
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.28.0",
   "engines": {
