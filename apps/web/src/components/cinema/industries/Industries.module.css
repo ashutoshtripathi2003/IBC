@@ -1,0 +1,242 @@
+.scene {
+  position: relative;
+  overflow: clip;
+  background: var(--ink-950);
+  color: var(--white);
+}
+
+.scene[data-motion='horizontal'] .stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.track {
+  display: flex;
+  flex-direction: column;
+}
+
+.scene[data-motion='horizontal'] .track {
+  flex-direction: row;
+  width: max-content;
+  height: 100svh;
+}
+
+.panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: center;
+  min-height: 86svh;
+  padding: var(--space-10) max(var(--gutter), calc((100vw - var(--container)) / 2));
+  overflow: hidden;
+}
+
+.scene[data-motion='horizontal'] .panel {
+  flex: none;
+  width: max(66vw, 56rem);
+  height: 100svh;
+  min-height: 0;
+  padding-top: calc(var(--header-height) + var(--space-6));
+}
+
+.ink {
+  background: var(--ink-950);
+}
+
+.navy {
+  background: radial-gradient(90% 80% at 75% 50%, #16304f 0%, var(--navy-950) 70%);
+}
+
+.charcoal {
+  background: linear-gradient(120deg, var(--charcoal) 0%, #0d1219 100%);
+}
+
+.scene[data-motion='horizontal'] .intro {
+  width: 100vw;
+}
+
+.scene[data-motion='horizontal'] .flip .plateWrap {
+  order: -1;
+}
+
+.intro {
+  grid-template-columns: minmax(0, 1fr);
+  background:
+    radial-gradient(60% 70% at 85% 60%, rgb(196 154 66 / 14%), transparent 70%), var(--ink-950);
+}
+
+.introInner {
+  max-width: 52rem;
+}
+
+.eyebrow {
+  margin-bottom: var(--space-5);
+  color: var(--gold-400);
+}
+
+.introTitle {
+  color: var(--white);
+  font-size: var(--display-xl);
+}
+
+.gold {
+  color: var(--gold-400);
+}
+
+.introText {
+  max-width: 34rem;
+  margin-top: var(--space-6);
+  color: var(--steel-300);
+  font-size: var(--text-xl);
+  line-height: 1.5;
+}
+
+.hint {
+  display: none;
+  margin-top: var(--space-8);
+  color: var(--gold-400);
+  font-size: var(--text-xs);
+  letter-spacing: var(--eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.scene[data-motion='horizontal'] .hint {
+  display: block;
+}
+
+.ghost {
+  position: absolute;
+  right: -2vw;
+  bottom: -0.18em;
+  color: transparent;
+  font-family: var(--font-display);
+  font-size: clamp(6rem, 16vw, 18rem);
+  font-stretch: 70%;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+  -webkit-text-stroke: 1px rgb(255 255 255 / 6%);
+  pointer-events: none;
+}
+
+.chapterText {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-5);
+  justify-items: start;
+}
+
+.chapterNum {
+  color: var(--steel-300);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+
+.chapterNum span {
+  color: var(--gold-400);
+  font-weight: var(--weight-semibold);
+}
+
+.chapterName {
+  color: var(--white);
+  font-size: var(--display-lg);
+}
+
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.segments li {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: var(--radius-pill);
+  color: rgb(255 255 255 / 85%);
+  font-size: var(--text-sm);
+}
+
+.counts {
+  color: var(--steel-300);
+  font-size: var(--text-sm);
+}
+
+.explore {
+  display: inline-flex;
+  gap: var(--space-2);
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--gold-500);
+  color: var(--gold-400);
+  font-weight: var(--weight-semibold);
+  text-decoration: none;
+}
+
+.explore span {
+  transition: transform var(--duration-base) var(--ease-out);
+}
+
+.explore:hover span {
+  transform: translateX(4px);
+}
+
+.explore:focus-visible {
+  outline: 2px solid var(--gold-400);
+  outline-offset: 4px;
+}
+
+.plateWrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+}
+
+.panel + .panel {
+  border-left: 1px solid rgb(255 255 255 / 6%);
+}
+
+.plate {
+  width: min(100%, 66svh, 34rem);
+  color: var(--white);
+}
+
+.ring {
+  transform-box: view-box;
+}
+
+.plateLabel {
+  fill: var(--steel-300);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+}
+
+@media (width <= 899px) {
+  .panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    min-height: 0;
+    padding-block: var(--space-9);
+  }
+
+  .plateWrap {
+    order: -1;
+  }
+
+  .plate {
+    width: min(78vw, 22rem);
+  }
+
+  .ghost {
+    font-size: 5.5rem;
+  }
+}

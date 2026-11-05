@@ -1,7 +1,7 @@
 import type { IndustryIcon } from '@/content/catalog';
 
 /** One consistent line-icon set (24px grid, 1.6 stroke). Decorative unless `label` is given. */
-const PATHS: Record<IndustryIcon | UiIcon, string> = {
+export const PATHS: Record<IndustryIcon | UiIcon, string> = {
   // Industries
   flask: 'M9 3h6M10 3v5.5L4.8 18a2 2 0 0 0 1.7 3h11a2 2 0 0 0 1.7-3L14 8.5V3M7.5 14h9',
   capsule: 'M10.5 20.5a5 5 0 0 1-7-7l6-6a5 5 0 0 1 7 7zM7.5 10.5l6 6',
