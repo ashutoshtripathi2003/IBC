@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'node:url';
 import type { NextConfig } from 'next';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -45,7 +46,9 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   // The monorepo root, so standalone output traces workspace dependencies correctly.
-  outputFileTracingRoot: new URL('../..', import.meta.url).pathname,
+  // fileURLToPath (not URL.pathname) gives a real OS path: correct drive letters on Windows
+  // and decoded spaces, e.g. a download extracted to "IBC (1)".
+  outputFileTracingRoot: fileURLToPath(new URL('../..', import.meta.url)),
   ...(staticExport
     ? {}
     : { headers: async () => [{ source: '/:path*', headers: securityHeaders }] }),
