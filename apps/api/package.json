@@ -24,7 +24,7 @@
     "openapi:export": "tsx --conditions=@ibc/source src/openapi-export.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-sesv2": "^3.1161.0",
+    "@aws-sdk/client-sesv2": "^3.1162.0",
     "@fastify/cors": "^11.3.1",
     "@fastify/helmet": "^13.2.0",
     "@fastify/rate-limit": "^11.2.1",
